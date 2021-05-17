@@ -3,6 +3,7 @@ import { StyleSheet, View, Image, Text, Dimensions, Platform, PixelRatio } from 
 import Icon from "react-native-vector-icons/Ionicons";
 import CupertinoButtonInfo from "../components/CupertinoButtonInfo";
 import CupertinoButtonInfo1 from "../components/CupertinoButtonInfo1";
+import { useFonts } from '@expo-google-fonts/inter';
 
 const {
   width: SCREEN_WIDTH,
@@ -35,7 +36,13 @@ var index = Math.floor(Math.random() * 5);
 var chosenQuote = obj.quotes[index].text
 
 
+let [fontsLoaded] = useFonts({
+  Quicksand :  require('../assets/fonts/quicksand-700.ttf'),
+});
 
+if (!fontsLoaded) {
+  return null;
+}
 
   return (
     <View style={styles.container}>
@@ -77,7 +84,7 @@ const styles = StyleSheet.create({
     marginTop: "15%",
   },
   loremIpsum: {
-    fontFamily: "quicksand",
+    fontFamily: 'Quicksand',
     color: "#121212",
     textAlign: "center",
     fontSize: actuatedNormalize(16),
@@ -85,7 +92,7 @@ const styles = StyleSheet.create({
     marginTop: "10%"
   },
   ceEști: {
-    fontFamily: "quicksand",
+    fontFamily: 'Quicksand',
     color: "#121212",
     textAlign: "center",
     fontSize: actuatedNormalize(28),

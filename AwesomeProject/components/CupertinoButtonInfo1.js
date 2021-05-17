@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   asociație: {
     color: "#fff",
     fontSize: 17,
-    fontFamily: "quicksand"
+    fontFamily: 'Quicksand'
   }
 });
 

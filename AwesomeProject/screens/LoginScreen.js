@@ -1,11 +1,14 @@
-import React, { Component } from "react";
-import { StyleSheet, View, Text, Image, Dimensions, Platform, PixelRatio } from "react-native";
+import React, { Component, useState } from "react";
+import { StyleSheet, View, Text, Image, Dimensions, Platform, PixelRatio, TextInput } from "react-native";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialRightIconTextbox from "../components/MaterialRightIconTextbox";
 import MaterialUnderlineTextbox from "../components/MaterialUnderlineTextbox";
 import MaterialButtonPrimary2 from "../components/MaterialButtonPrimary2";
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from '@react-navigation/native';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
+
 
 const {
   width: SCREEN_WIDTH,
@@ -24,13 +27,16 @@ export function actuatedNormalize(size) {
   }
 }
 
-
 function LoginScreen({ route, navigation }) {
   const navigationn = useNavigation();
   const { type, typeS } = route.params;
 
   var str1 = "Autentificare #";
   var res = str1.concat(typeS);
+
+  const [showPassword, setShowPassword] = useState(true);
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   return (
     <View style={styles.container}>
@@ -47,20 +53,33 @@ function LoginScreen({ route, navigation }) {
       </Text>
       <View style={styles.emailStack}>
         <Text style={styles.email}>Email</Text>
-        <MaterialUnderlineTextbox
-          inputStyle="Placeholder"
-          inputStyle="unul pe care îl verifici des"
-          style={styles.materialUnderlineTextbox}
-        ></MaterialUnderlineTextbox>
+        <View style={[styless.container]}>
+          <TextInput
+            placeholder={"unul pe care îl verifici des"|| "Placeholder"}
+            style={styless.inputStyle}
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+          ></TextInput>
+        </View>
       </View>
       <View style={styles.materialRightIconTextboxStack}>
-        <MaterialRightIconTextbox
-          style={styles.materialRightIconTextbox}
-        ></MaterialRightIconTextbox>
+        <View style={[stylesss.container]}>
+        <TextInput
+          placeholder="folosește una sigură"
+          secureTextEntry={showPassword}
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          style={stylesss.inputStyle}
+        ></TextInput>
+        <Icon name="eye" style={stylesss.iconStyle}
+        onPress={() => setShowPassword(!showPassword)}></Icon>
+        </View>
         <Text style={styles.parola}>Parolă</Text>
       </View>
       <MaterialButtonPrimary2
         style={styles.materialButtonPrimary1}
+        email={email}
+        password={password}
       ></MaterialButtonPrimary2>
       <Text style={styles.text}>sau folosește alte conturi sociale</Text>
       <View style={styles.groupRow}>
@@ -81,13 +100,61 @@ function LoginScreen({ route, navigation }) {
   );
 }
 
+
+const stylesss = StyleSheet.create({
+  container: {
+    borderBottomWidth: 1,
+    borderColor: "#D9D5DC",
+    backgroundColor: "transparent",
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: actuatedNormalize(12)
+  },
+  inputStyle: {
+    color: "#000",
+    paddingRight: 16,
+    fontSize: 16,
+    alignSelf: "stretch",
+    flex: 1,
+    lineHeight: 16,
+    paddingTop: 14,
+    paddingBottom: 8
+  },
+  iconStyle: {
+    color: "#616161",
+    fontSize: 24,
+    paddingRight: 8
+  }
+});
+
+const styless = StyleSheet.create({
+  container: {
+    borderBottomWidth: 1,
+    borderColor: "#D9D5DC",
+    backgroundColor: "transparent",
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: actuatedNormalize(12)
+  },
+  inputStyle: {
+    color: "#000",
+    paddingRight: 5,
+    fontSize: 16,
+    alignSelf: "stretch",
+    flex: 1,
+    lineHeight: 16,
+    paddingTop: 16,
+    paddingBottom: 8
+  }
+});
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
   },
   autentificare: {
-    fontFamily: "quicksand",
+    fontFamily: "Quicksand",
     color: "#121212",
     width: "100%",
     textAlign: "center",
@@ -104,7 +171,7 @@ const styles = StyleSheet.create({
     height: actuatedNormalize(90)
   },
   loremIpsum1: {
-    fontFamily: "quicksand",
+    fontFamily: "Quicksand",
     color: "rgba(96,93,93,1)",
     textAlign: "center",
     fontSize: actuatedNormalize(11)
@@ -120,7 +187,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     position: "absolute",
-    fontFamily: "quicksand",
+    fontFamily: "Quicksand",
     color: "rgba(0,149,218,1)",
     width: 74,
     fontSize: 18
@@ -134,7 +201,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     position: "absolute",
-    fontFamily: "quicksand",
+    fontFamily: "Quicksand",
     color: "rgba(0,149,218,1)",
     width: 74,
     fontSize: 18
@@ -158,7 +225,7 @@ const styles = StyleSheet.create({
     marginTop: "5%"
   },
   text: {
-    fontFamily: "quicksand",
+    fontFamily: "Quicksand",
     color: "rgba(96,93,93,1)",
     textAlign: "center",
     fontSize: 14,
@@ -190,13 +257,13 @@ const styles = StyleSheet.create({
     marginRight: 133
   },
   aiUitatParola: {
-    fontFamily: "quicksand",
+    fontFamily: "Quicksand",
     color: "rgba(255,0,0,1)",
     textAlign: "center",
     fontSize: 14
   },
   inregistrare: {
-    fontFamily: "quicksand",
+    fontFamily: "Quicksand",
     color: "rgba(255,0,0,1)",
     textAlign: "center",
     fontSize: 14,

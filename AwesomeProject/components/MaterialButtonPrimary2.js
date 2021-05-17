@@ -1,10 +1,42 @@
 import React, { Component } from "react";
 import { StyleSheet, TouchableOpacity, Text } from "react-native";
+import firebase from '../database/firebaseDb'
+import { useNavigation } from '@react-navigation/native';
 
 function MaterialButtonPrimary2(props) {
+  const navigation = useNavigation();
+
   return (
     <TouchableOpacity style={[styles.container, props.style]}>
-      <Text style={styles.asociație}>Autentifică-mă</Text>
+      <Text 
+      style={styles.asociație}
+      OnPress = {() => {
+        
+        firebase
+            .auth()
+            .signInWithEmailAndPassword(props.email, props.password)
+            .then((response) => {
+                const uid = response.user.uid
+                const usersRef = firebase.firestore().collection('users')
+                usersRef
+                    .doc(uid)
+                    .get()
+                    .then(firestoreDocument => {
+                        if (!firestoreDocument.exists) {
+                            alert("Acest cont nu există.")
+                            return;
+                        }
+                        const user = firestoreDocument.data()
+                        navigation.navigate('HomeScreen', {user})
+                    })
+                    .catch(error => {
+                        alert(error)
+                    });
+            })
+            .catch(error => {
+                alert(error)
+            })
+      }}>Autentifică-mă</Text>
     </TouchableOpacity>
   );
 }
@@ -31,7 +63,7 @@ const styles = StyleSheet.create({
   asociație: {
     color: "#fff",
     fontSize: 17,
-    fontFamily: "quicksand"
+    fontFamily: 'Quicksand'
   }
 });
 

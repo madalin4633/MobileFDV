@@ -18,6 +18,8 @@
 #import <FlipperKitNetworkPlugin/FlipperKitNetworkPlugin.h>
 #import <SKIOSNetworkPlugin/SKIOSNetworkAdapter.h>
 #import <FlipperKitReactPlugin/FlipperKitReactPlugin.h>
+#import <UIKit/UIKit.h>
+#import <Firebase/Firebase.h>
 
 static void InitializeFlipper(UIApplication *application) {
   FlipperClient *client = [FlipperClient sharedClient];
@@ -57,7 +59,7 @@ static void InitializeFlipper(UIApplication *application) {
   #endif
 
   [super application:application didFinishLaunchingWithOptions:launchOptions];
-
+  [FIRApp configure];
   return YES;
 }
 

@@ -5,6 +5,8 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 let showPassword = true;
 
 function MaterialRightIconTextbox(props) {
+
+  
   const [showPassword, setShowPassword] = useState(showPassword);
 
   return (

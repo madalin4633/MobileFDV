@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   voluntar: {
     color: "#fff",
     fontSize: 17,
-    fontFamily: "quicksand"
+    fontFamily: 'Quicksand'
   }
 });
 
