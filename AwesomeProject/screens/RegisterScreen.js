@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, useState, useContext } from "react";
 import { StyleSheet, View, Text, TextInput, Image, Dimensions, Platform, PixelRatio } from "react-native";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialRightIconTextbox from "../components/MaterialRightIconTextbox";
@@ -7,7 +7,7 @@ import MaterialButtonPrimary3 from "../components/MaterialButtonPrimary3";
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from '@react-navigation/native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import firebase from '@react-native-firebase/app';
+import {AuthContext} from '../AuthProvider';
 
 const {
   width: SCREEN_WIDTH,
@@ -35,8 +35,10 @@ function RegisterScreen({ route, navigation }) {
   var res = str1.concat(typeS);
 
   const [showPassword, setShowPassword] = useState(true);
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const {loginG} = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
@@ -89,6 +91,9 @@ function RegisterScreen({ route, navigation }) {
         <FontAwesomeIcon
           name="google-plus-official"
           style={styles.icon2}
+          onPress = {() => {
+            loginG();
+          }}
         ></FontAwesomeIcon>
       </View>
     </View>

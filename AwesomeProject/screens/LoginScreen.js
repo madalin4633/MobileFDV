@@ -94,7 +94,7 @@ function LoginScreen({ route, navigation }) {
       <View style={styles.aiUitatParolaRow}>
         <Text style={styles.aiUitatParola}>Ai uitat parola?</Text>
         <Text style={styles.inregistrare}
-        onPress={() => navigation.navigate('RegisterScreen', { type: type, typeS: typeS})}>Înregistrare</Text>
+        onPress={() => navigationn.navigate('RegisterScreen', { type: type, typeS: typeS})}>Înregistrare</Text>
       </View>
     </View>
   );

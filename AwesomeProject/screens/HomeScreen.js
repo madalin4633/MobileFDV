@@ -1,8 +1,23 @@
-import React, { Component } from "react";
-import { StyleSheet, View, Image } from "react-native";
+import React, { Component, useContext } from "react";
+import { StyleSheet, View, Image, Dimensions, TouchableOpacity, Text, Alert } from "react-native";
 import MaterialBasicFooter1 from "../components/MaterialBasicFooter1";
+import { useFonts } from '@expo-google-fonts/inter';
+import {AuthContext} from '../AuthProvider';
+import { useNavigation } from '@react-navigation/native';
+
 
 function HomeScreen(props) {
+  const navigation = useNavigation();
+  const {user, logout} = useContext(AuthContext);
+
+  let [fontsLoaded] = useFonts({
+    Quicksand: require('../assets/fonts/quicksand-700.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       <Image
@@ -10,6 +25,14 @@ function HomeScreen(props) {
         resizeMode="contain"
         style={styles.image1}
       ></Image>
+      <TouchableOpacity
+        style={[styless.container, props.style]}
+        onPress = {() => {
+          logout();
+        }}>
+        <Text style={styless.deconnect}>
+          Deconectează-mă</Text>
+      </TouchableOpacity>
       <MaterialBasicFooter1
         style={styles.materialBasicFooter1}
       ></MaterialBasicFooter1>
@@ -19,18 +42,47 @@ function HomeScreen(props) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    alignItems: "center"
   },
   image1: {
-    width: 90,
-    height: 116,
+    width: 100,
+    height: 100,
     marginTop: 48,
     alignSelf: "center"
   },
   materialBasicFooter1: {
     height: 56,
-    width: 375,
-    marginTop: 592
+    width: Dimensions.get('window').width,
+    position: "absolute",
+    bottom: 0
+  }
+});
+
+const styless = StyleSheet.create({
+  container: {
+    backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    borderRadius: 5,
+    shadowColor: "#000",
+    marginTop: 100,
+    shadowOffset: {
+      width: 0,
+      height: 1
+    },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 2,
+    minWidth: 88,
+    paddingLeft: 16,
+    paddingRight: 16
+  },
+  deconnect: {
+    color: "#fff",
+    fontSize: 22,
+    fontFamily: 'Quicksand'
   }
 });
 

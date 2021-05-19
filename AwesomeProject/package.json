@@ -21,7 +21,7 @@
     "expo-splash-screen": "~0.10.2",
     "expo-status-bar": "~1.0.4",
     "expo-updates": "~0.5.4",
-    "firebase": "8.2.3",
+    "firebase": "^8.2.3",
     "raven-js": "^3.27.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",

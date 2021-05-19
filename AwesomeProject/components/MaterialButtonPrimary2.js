@@ -1,42 +1,24 @@
-import React, { Component } from "react";
-import { StyleSheet, TouchableOpacity, Text } from "react-native";
-import firebase from '../database/firebaseDb'
+import React, { Component, useContext } from "react";
+import { StyleSheet, TouchableOpacity, Text, Alert } from "react-native";
 import { useNavigation } from '@react-navigation/native';
+import {AuthContext} from '../AuthProvider';
 
 function MaterialButtonPrimary2(props) {
   const navigation = useNavigation();
 
+  const {login} = useContext(AuthContext);
+  
   return (
-    <TouchableOpacity style={[styles.container, props.style]}>
-      <Text 
-      style={styles.asociație}
-      OnPress = {() => {
-        
-        firebase
-            .auth()
-            .signInWithEmailAndPassword(props.email, props.password)
-            .then((response) => {
-                const uid = response.user.uid
-                const usersRef = firebase.firestore().collection('users')
-                usersRef
-                    .doc(uid)
-                    .get()
-                    .then(firestoreDocument => {
-                        if (!firestoreDocument.exists) {
-                            alert("Acest cont nu există.")
-                            return;
-                        }
-                        const user = firestoreDocument.data()
-                        navigation.navigate('HomeScreen', {user})
-                    })
-                    .catch(error => {
-                        alert(error)
-                    });
-            })
-            .catch(error => {
-                alert(error)
-            })
-      }}>Autentifică-mă</Text>
+    <TouchableOpacity 
+    style={[styles.container, props.style]}
+    onPress={() => {
+      if(props.email === '' || props.password === ''){
+        Alert.alert('Ai uitat să introduci toate datele!');
+      } else{
+      login(props.email, props.password)
+      }
+    }}>
+      <Text style={styles.asociație}>Autentifică-mă</Text>
     </TouchableOpacity>
   );
 }

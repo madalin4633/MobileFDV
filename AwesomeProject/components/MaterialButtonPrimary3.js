@@ -1,42 +1,22 @@
-import React, { Component } from "react";
+import React, { Component, useContext } from "react";
 import { StyleSheet, TouchableOpacity, Text, Alert } from "react-native";
-import firebase from '../database/firebaseDb'
 import { useNavigation } from '@react-navigation/native';
+import {AuthContext} from '../AuthProvider';
 
 function MaterialButtonPrimary3(props) {
   const navigation = useNavigation();
+
+  const {register} = useContext(AuthContext);
 
   return (
     <TouchableOpacity 
       style={[styles.container, props.style]}
       onPress={() => {
         if(props.email === '' || props.password === ''){
-          Alert.alert('Ai uitat să introduci toate datele!')
+          Alert.alert('Ai uitat să introduci toate datele!');
         } else {
-          firebase
-          .auth()
-          .createUserWithEmailAndPassword(props.email, props.password)
-          .then((response) => {
-              const uid = response.user.uid
-              const data = {
-                  id: uid,
-                  email: props.email
-              };
-              Alert.alert('Contul a fost creat! Loghează-te în ecranul anterior.')
-              const usersRef = firebase.firestore().collection('users')
-              usersRef
-                  .doc(uid)
-                  .set(data)
-                  .then(() => {
-                      navigation.navigate('HomeScreen', {user: data})
-                  })
-                  .catch((error) => {
-                      alert(error)
-                  });
-          })
-          .catch((error) => {
-              alert(error)
-      });}
+          register(props.email, props.password);
+        }
         
         }}>
         <Text style={styles.asociație}>Înregistrează-mă</Text>
