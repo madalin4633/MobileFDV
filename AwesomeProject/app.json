@@ -7,6 +7,11 @@
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "icon": "./assets/images/fabrica_de_voluntari.png",
+    "android": {
+      "package": "com.awesomeproject",
+      "googleServicesFile": "./google-services.json"
+    }
   }
 }

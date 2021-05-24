@@ -83,6 +83,8 @@ function RegisterScreen({ route, navigation }) {
         email={email}
         password={password}
       ></MaterialButtonPrimary3>
+      {Platform.OS === 'android' ? (  
+      <View>
       <Text style={styles.text}>sau folosește alte conturi sociale</Text>
       <View style={styles.groupRow}>
         <View style={styles.group}>
@@ -91,11 +93,11 @@ function RegisterScreen({ route, navigation }) {
         <FontAwesomeIcon
           name="google-plus-official"
           style={styles.icon2}
-          onPress = {() => {
-            loginG();
-          }}
+          onPress = { () => loginG()}
         ></FontAwesomeIcon>
       </View>
+      </View>
+      ) : null}
     </View>
   );
 }

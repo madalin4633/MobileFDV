@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, useState, useContext } from "react";
 import { StyleSheet, View, Text, Image, Dimensions, Platform, PixelRatio, TextInput } from "react-native";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialRightIconTextbox from "../components/MaterialRightIconTextbox";
@@ -7,7 +7,7 @@ import MaterialButtonPrimary2 from "../components/MaterialButtonPrimary2";
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from '@react-navigation/native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-
+import {AuthContext} from '../AuthProvider';
 
 
 const {
@@ -35,8 +35,9 @@ function LoginScreen({ route, navigation }) {
   var res = str1.concat(typeS);
 
   const [showPassword, setShowPassword] = useState(true);
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const {loginG} = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
@@ -81,16 +82,21 @@ function LoginScreen({ route, navigation }) {
         email={email}
         password={password}
       ></MaterialButtonPrimary2>
-      <Text style={styles.text}>sau folosește alte conturi sociale</Text>
-      <View style={styles.groupRow}>
-        <View style={styles.group}>
-          <EntypoIcon name="facebook" style={styles.icon}></EntypoIcon>
+      {Platform.OS === 'android' ? (  
+      <View>
+        <Text style={styles.text}>sau folosește alte conturi sociale</Text>
+        <View style={styles.groupRow}>
+          <View style={styles.group}>
+            <EntypoIcon name="facebook" style={styles.icon}></EntypoIcon>
+          </View>
+          <FontAwesomeIcon
+            name="google-plus-official"
+            style={styles.icon2}
+            onPress = { () => loginG()}
+          ></FontAwesomeIcon>
         </View>
-        <FontAwesomeIcon
-          name="google-plus-official"
-          style={styles.icon2}
-        ></FontAwesomeIcon>
       </View>
+      ) : null}
       <View style={styles.aiUitatParolaRow}>
         <Text style={styles.aiUitatParola}>Ai uitat parola?</Text>
         <Text style={styles.inregistrare}

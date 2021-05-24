@@ -25,7 +25,7 @@ const Routes = () => {
     return subscriber; // unsubscribe on unmount
   }, []);
 
-  if (initializing) return null;
+  if (initializing) return <LoadingScreen></LoadingScreen>;
 
   return (
     <NavigationContainer>
