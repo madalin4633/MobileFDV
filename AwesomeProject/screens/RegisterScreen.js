@@ -38,7 +38,7 @@ function RegisterScreen({ route, navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { loginG } = useContext(AuthContext);
+  const { loginG, loginF } = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
@@ -87,7 +87,8 @@ function RegisterScreen({ route, navigation }) {
         <Text style={styles.text}>sau folosește alte conturi sociale</Text>
         <View style={styles.groupRow}>
           <View style={styles.group}>
-            <EntypoIcon name="facebook" style={styles.icon}></EntypoIcon>
+            <EntypoIcon name="facebook" style={styles.icon}
+            onPress={() => loginF()}></EntypoIcon>
           </View>
           <FontAwesomeIcon
             name="google-plus-official"

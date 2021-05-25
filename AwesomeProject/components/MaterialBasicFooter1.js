@@ -1,11 +1,16 @@
 import React, { Component } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import { useNavigation } from '@react-navigation/native';
 
 function MaterialBasicFooter1(props) {
+
+  const navigationn = useNavigation();
+
   return (
     <View style={[styles.container, props.style]}>
-      <TouchableOpacity style={styles.btnWrapper1}>
+      <TouchableOpacity style={styles.btnWrapper1}
+      onPress={() => navigationn.navigate('HomeScreen')}>
         <MaterialCommunityIconsIcon
           name="home"
           style={styles.icon1}
@@ -26,7 +31,8 @@ function MaterialBasicFooter1(props) {
         ></MaterialCommunityIconsIcon>
         <Text style={styles.rewards}>rewards</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.group}>
+      <TouchableOpacity style={styles.group}
+      onPress={() => navigationn.navigate('ProfileScreen')}>
         <MaterialCommunityIconsIcon
           name="account-circle"
           style={styles.icon4}
@@ -110,7 +116,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     opacity: 0.8,
     fontFamily: 'Quicksand',
-    height: 17
+    height: 18.75
   },
   group: {
     flex: 1,

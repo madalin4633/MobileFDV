@@ -6,7 +6,7 @@ import {AuthContext} from '../AuthProvider';
 import { useNavigation } from '@react-navigation/native';
 
 
-function HomeScreen(props) {
+function ProfileScreen(props) {
   const navigation = useNavigation();
   const {user, logout} = useContext(AuthContext);
 
@@ -25,7 +25,14 @@ function HomeScreen(props) {
         resizeMode="contain"
         style={styles.image1}
       ></Image>
-      
+      <TouchableOpacity
+        style={[styless.container, props.style]}
+        onPress = {() => {
+          logout();
+        }}>
+        <Text style={styless.deconnect}>
+          Deconectează-mă</Text>
+      </TouchableOpacity>
       <MaterialBasicFooter1
         style={styles.materialBasicFooter1}
       ></MaterialBasicFooter1>
@@ -79,4 +86,4 @@ const styless = StyleSheet.create({
   }
 });
 
-export default HomeScreen;
+export default ProfileScreen;
