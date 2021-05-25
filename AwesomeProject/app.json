@@ -12,6 +12,11 @@
     "android": {
       "package": "com.awesomeproject",
       "googleServicesFile": "./google-services.json"
+    },
+    "extra": {
+      "facebook":{
+        "appId": "564337301215491"
+      }
     }
   }
 }

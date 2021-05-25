@@ -7,7 +7,7 @@ import MaterialButtonPrimary2 from "../components/MaterialButtonPrimary2";
 import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from '@react-navigation/native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import {AuthContext} from '../AuthProvider';
+import { AuthContext } from '../AuthProvider';
 
 
 const {
@@ -37,17 +37,17 @@ function LoginScreen({ route, navigation }) {
   const [showPassword, setShowPassword] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {loginG} = useContext(AuthContext);
+  const { loginG, loginF } = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
       <EntypoIcon name="back" style={styles.icon3}
         onPress={() => navigationn.goBack()}></EntypoIcon>
-        <Image
-          source={require("../assets/images/fabrica_de_voluntari.png")}
-          resizeMode="contain"
-          style={styles.image1}
-        ></Image>
+      <Image
+        source={require("../assets/images/fabrica_de_voluntari.png")}
+        resizeMode="contain"
+        style={styles.image1}
+      ></Image>
       <Text style={styles.autentificare}>{res}</Text>
       <Text style={styles.loremIpsum1}>
         Hey, ne bucurăm să te vedem înapoi.
@@ -56,7 +56,7 @@ function LoginScreen({ route, navigation }) {
         <Text style={styles.email}>Email</Text>
         <View style={[styless.container]}>
           <TextInput
-            placeholder={"unul pe care îl verifici des"|| "Placeholder"}
+            placeholder={"unul pe care îl verifici des" || "Placeholder"}
             style={styless.inputStyle}
             onChangeText={(text) => setEmail(text)}
             value={email}
@@ -65,15 +65,15 @@ function LoginScreen({ route, navigation }) {
       </View>
       <View style={styles.materialRightIconTextboxStack}>
         <View style={[stylesss.container]}>
-        <TextInput
-          placeholder="folosește una sigură"
-          secureTextEntry={showPassword}
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          style={stylesss.inputStyle}
-        ></TextInput>
-        <Icon name="eye" style={stylesss.iconStyle}
-        onPress={() => setShowPassword(!showPassword)}></Icon>
+          <TextInput
+            placeholder="folosește una sigură"
+            secureTextEntry={showPassword}
+            onChangeText={(text) => setPassword(text)}
+            value={password}
+            style={stylesss.inputStyle}
+          ></TextInput>
+          <Icon name="eye" style={stylesss.iconStyle}
+            onPress={() => setShowPassword(!showPassword)}></Icon>
         </View>
         <Text style={styles.parola}>Parolă</Text>
       </View>
@@ -82,25 +82,26 @@ function LoginScreen({ route, navigation }) {
         email={email}
         password={password}
       ></MaterialButtonPrimary2>
-      {Platform.OS === 'android' ? (  
       <View>
         <Text style={styles.text}>sau folosește alte conturi sociale</Text>
         <View style={styles.groupRow}>
           <View style={styles.group}>
-            <EntypoIcon name="facebook" style={styles.icon}></EntypoIcon>
+            <EntypoIcon name="facebook"
+              style={styles.icon}
+              onPress={() => loginF()}></EntypoIcon>
           </View>
           <FontAwesomeIcon
             name="google-plus-official"
             style={styles.icon2}
-            onPress = { () => loginG()}
+            onPress={() => loginG()}
           ></FontAwesomeIcon>
         </View>
       </View>
-      ) : null}
       <View style={styles.aiUitatParolaRow}>
-        <Text style={styles.aiUitatParola}>Ai uitat parola?</Text>
+        <Text style={styles.aiUitatParola}
+          onPress={() => navigationn.navigate('PassScreen', { type: type, typeS: typeS })}>Ai uitat parola?</Text>
         <Text style={styles.inregistrare}
-        onPress={() => navigationn.navigate('RegisterScreen', { type: type, typeS: typeS})}>Înregistrare</Text>
+          onPress={() => navigationn.navigate('RegisterScreen', { type: type, typeS: typeS })}>Înregistrare</Text>
       </View>
     </View>
   );

@@ -8,6 +8,8 @@ import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import WelcomeScreen from './screens/WelcomeScreen';
+import PassScreen from './screens/PassScreen';
+
 
 const Stack = createStackNavigator();
 
@@ -37,6 +39,8 @@ const Routes = () => {
             <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
             <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+            <Stack.Screen name="PassScreen" component={PassScreen} />
+            
             </>
           )}
         </Stack.Navigator>

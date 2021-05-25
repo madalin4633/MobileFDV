@@ -1,13 +1,8 @@
 import React, { Component, useState, useContext } from "react";
 import { StyleSheet, View, Text, TextInput, Image, Dimensions, Platform, PixelRatio } from "react-native";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import MaterialRightIconTextbox from "../components/MaterialRightIconTextbox";
-import MaterialUnderlineTextbox from "../components/MaterialUnderlineTextbox";
-import MaterialButtonPrimary3 from "../components/MaterialButtonPrimary3";
-import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
+import MaterialButtonPrimary4 from "../components/MaterialButtonPrimary4";
 import { useNavigation } from '@react-navigation/native';
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { AuthContext } from '../AuthProvider';
 
 const {
   width: SCREEN_WIDTH,
@@ -27,75 +22,41 @@ export function actuatedNormalize(size) {
 }
 
 
-function RegisterScreen({ route, navigation }) {
+function NewScreen({ route, navigation }) {
   const navigationn = useNavigation();
   const { type, typeS } = route.params;
 
-  var str1 = "Înregistrare #";
+  var str1 = "Parolă nouă #";
   var res = str1.concat(typeS);
 
-  const [showPassword, setShowPassword] = useState(true);
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const { loginG } = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
       <EntypoIcon name="back" style={styles.icon3}
         onPress={() => navigationn.goBack()}></EntypoIcon>
-      <Image
-        source={require("../assets/images/fabrica_de_voluntari.png")}
-        resizeMode="contain"
-        style={styles.image1}
-      ></Image>
+        <Image
+          source={require("../assets/images/fabrica_de_voluntari.png")}
+          resizeMode="contain"
+          style={styles.image1}
+        ></Image>
       <Text style={styles.autentificare}>{res}</Text>
-      <Text style={styles.loremIpsum1}>
-        Super, ce bine că te alături nouă!
-      </Text>
+      
       <View style={styles.emailStack}>
-        <Text style={styles.email}>Email</Text>
+        <Text style={styles.email}>Email-ul</Text>
         <View style={[styless.container]}>
           <TextInput
-            placeholder={"unul pe care îl verifici des" || "Placeholder"}
+            placeholder={"contului la care nu mai știi parola"|| "Placeholder"}
             style={styless.inputStyle}
             onChangeText={(text) => setEmail(text)}
             value={email}
           ></TextInput>
         </View>
       </View>
-      <View style={styles.materialRightIconTextboxStack}>
-        <View style={[stylesss.container]}>
-          <TextInput
-            placeholder="folosește una sigură"
-            secureTextEntry={showPassword}
-            onChangeText={(text) => setPassword(text)}
-            value={password}
-            style={stylesss.inputStyle}
-          ></TextInput>
-          <Icon name="eye" style={stylesss.iconStyle}
-            onPress={() => setShowPassword(!showPassword)}></Icon>
-        </View>
-        <Text style={styles.parola}>Parolă</Text>
-      </View>
-      <MaterialButtonPrimary3
+      <MaterialButtonPrimary4
         style={styles.materialButtonPrimary1}
         email={email}
-        password={password}
-      ></MaterialButtonPrimary3>
-      <View>
-        <Text style={styles.text}>sau folosește alte conturi sociale</Text>
-        <View style={styles.groupRow}>
-          <View style={styles.group}>
-            <EntypoIcon name="facebook" style={styles.icon}></EntypoIcon>
-          </View>
-          <FontAwesomeIcon
-            name="google-plus-official"
-            style={styles.icon2}
-            onPress={() => loginG()}
-          ></FontAwesomeIcon>
-        </View>
-      </View>
+      ></MaterialButtonPrimary4>
     </View>
   );
 }
@@ -159,6 +120,7 @@ const styles = StyleSheet.create({
     width: "100%",
     textAlign: "center",
     fontSize: actuatedNormalize(20),
+    marginTop: "10%",
   },
   icon3: {
     color: "rgba(0,0,0,1)",
@@ -203,7 +165,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     fontFamily: 'Quicksand',
     color: "rgba(0,149,218,1)",
-    width: 74,
+    width: "100%",
     fontSize: 18
   },
   materialUnderlineTextbox: {
@@ -216,7 +178,7 @@ const styles = StyleSheet.create({
   emailStack: {
     width: 316,
     height: 70,
-    marginTop: "5%"
+    marginTop: "10%"
   },
   materialButtonPrimary1: {
     height: actuatedNormalize(35),
@@ -277,4 +239,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default RegisterScreen;
+export default NewScreen;
