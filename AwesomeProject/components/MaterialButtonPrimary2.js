@@ -1,23 +1,40 @@
 import React, { Component, useContext } from "react";
 import { StyleSheet, TouchableOpacity, Text, Alert } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-import {AuthContext} from '../AuthProvider';
+import { AuthContext } from '../AuthProvider';
+import firebase from '../database/firebaseDb';
 
 function MaterialButtonPrimary2(props) {
   const navigation = useNavigation();
 
-  const {login} = useContext(AuthContext);
-  
+  const { login } = useContext(AuthContext);
+
   return (
-    <TouchableOpacity 
-    style={[styles.container, props.style]}
-    onPress={() => {
-      if(props.email === '' || props.password === ''){
-        Alert.alert('Ai uitat să introduci toate datele!');
-      } else{
-      login(props.email, props.password)
-      }
-    }}>
+    <TouchableOpacity
+      style={[styles.container, props.style]}
+      onPress={() => {
+        let okToAuth = 1;
+        var database = firebase.database();
+        var userRef = database.ref("accounts");
+        userRef.on('value', function (snapshot) {
+          snapshot.forEach(function (childSnapshot) {
+            var childData = childSnapshot.val();
+            if(childData.email===props.email && childData.type!=props.accType){
+              okToAuth = 0;
+              Alert.alert('Contul tău este de alt tip!');
+            }
+          });
+        });
+
+        if (props.email === '' || props.password === '') {
+          Alert.alert('Ai uitat să introduci toate datele!');
+          okToAuth = 0;
+        }
+
+        if (okToAuth===1) {
+          login(props.email, props.password)
+        }
+      }}>
       <Text style={styles.asociație}>Autentifică-mă</Text>
     </TouchableOpacity>
   );

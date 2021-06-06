@@ -34,9 +34,19 @@ export const AuthProvider = ({ children }) => {
                         Alert.alert(e.message);
                     }
                 },
-                register: async (email, password) => {
+                register: async (email, password, accType) => {
                     try {
-                        await firebase.auth().createUserWithEmailAndPassword(email, password);
+                        firebase.auth().createUserWithEmailAndPassword(email, password)
+                            .then(function (result) {
+                                firebase
+                                    .database()
+                                    .ref('/accounts/' + result.user.uid)
+                                    .set({
+                                        type: accType,
+                                        edited: 0,
+                                        email: email
+                                    });
+                            });
                     } catch (e) {
                         Alert.alert(e.message);
                     }
@@ -48,7 +58,7 @@ export const AuthProvider = ({ children }) => {
                         Alert.alert(e.message);
                     }
                 },
-                loginG: async () => {
+                loginG: async (accType) => {
                     const config = {
                         androidClientId: '961151676423-plkd8clo1f0je3feeegdg3r3dulva6jk.apps.googleusercontent.com',
                         iosClientId: '961151676423-9of1tr1k01kj5966a6n2pv7s2195e5rk.apps.googleusercontent.com',
@@ -56,19 +66,40 @@ export const AuthProvider = ({ children }) => {
                     };
                     try {
                         Google.logInAsync(config)
-                            .then((result) => {
+                            .then((resultt) => {
+                                let okToAuth = 1;
+                                var database = firebase.database();
+                                var userRef = database.ref("accounts");
+                                userRef.on('value', function (snapshot) {
+                                    snapshot.forEach(function (childSnapshot) {
+                                        var childData = childSnapshot.val();
+                                        if (childData.email === resultt.user.email && childData.type != accType) {
+                                            okToAuth = 0;
+                                            Alert.alert('Contul tău este de alt tip!');
+                                        }
+                                    });
+                                });
+                                //result.user.email
                                 var unsubscribe = firebase.auth().onAuthStateChanged((firebaseUser) => {
                                     unsubscribe();
                                     // Check if we are already signed-in Firebase with the correct user.
-                                    if (!isUserEqual(result, firebaseUser)) {
+                                    if (!isUserEqual(resultt, firebaseUser) && okToAuth === 1) {
                                         // Build Firebase credential with the Google ID token.
                                         var credential = firebase.auth.GoogleAuthProvider.credential(
-                                            result.idToken,
-                                            result.accessToken);
+                                            resultt.idToken,
+                                            resultt.accessToken);
 
                                         // Sign in with credential from the Google user.
-                                        firebase.auth().signInWithCredential(credential).then(function () {
-                                            Alert.alert('User signed in!');
+                                        firebase.auth().signInWithCredential(credential).then(function (result) {
+                                            firebase
+                                                .database()
+                                                .ref('/accounts/' + result.user.uid)
+                                                .set({
+                                                    type: accType,
+                                                    edited: 0,
+                                                    email: result.user.email
+                                                });
+                                            Alert.alert('User signed in with Google!');
                                         }).catch((error) => {
                                             // Handle Errors here.
                                             var errorCode = error.code;
@@ -81,7 +112,9 @@ export const AuthProvider = ({ children }) => {
                                             Alert.alert('Error, try again later!');
                                         });
                                     } else {
-                                        Alert.alert('User already signed-in Firebase.');
+                                        if (okToAuth === 1) {
+                                            Alert.alert('User already signed-in Firebase.');
+                                        }
                                     }
                                 });
                             })
@@ -92,7 +125,7 @@ export const AuthProvider = ({ children }) => {
                         Alert.alert(e.message);
                     }
                 },
-                loginF: async () => {
+                loginF: async (accType) => {
                     try {
                         await Facebook.initializeAsync({
                             appId: '564337301215491',
@@ -107,12 +140,19 @@ export const AuthProvider = ({ children }) => {
                         } = await Facebook.logInWithReadPermissionsAsync({
                             permissions: ['email', 'public_profile'],
                         });
-
                         if (type === 'success') {
                             const credential = firebase.auth.FacebookAuthProvider.credential(token);
                             // Sign in with credential from the Facebook user.
-                            firebase.auth().signInWithCredential(credential).then(function () {
-                                Alert.alert('User signed in!');
+                            firebase.auth().signInWithCredential(credential).then(function (resultt) {
+                                firebase
+                                    .database()
+                                    .ref('/accounts/' + resultt.user.uid)
+                                    .set({
+                                        type: accType,
+                                        edited: 0,
+                                        email: resultt.user.email
+                                    });
+                                Alert.alert('User signed in with Facebook!');
                             }).catch((error) => {
                                 // Handle Errors here.
                                 var errorCode = error.code;

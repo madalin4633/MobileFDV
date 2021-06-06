@@ -82,18 +82,19 @@ function RegisterScreen({ route, navigation }) {
         style={styles.materialButtonPrimary1}
         email={email}
         password={password}
+        accType={type}
       ></MaterialButtonPrimary3>
       <View>
         <Text style={styles.text}>sau folosește alte conturi sociale</Text>
         <View style={styles.groupRow}>
           <View style={styles.group}>
             <EntypoIcon name="facebook" style={styles.icon}
-            onPress={() => loginF()}></EntypoIcon>
+            onPress={() => loginF(type)}></EntypoIcon>
           </View>
           <FontAwesomeIcon
             name="google-plus-official"
             style={styles.icon2}
-            onPress={() => loginG()}
+            onPress={() => loginG(type)}
           ></FontAwesomeIcon>
         </View>
       </View>

@@ -15,7 +15,7 @@ function MaterialButtonPrimary3(props) {
         if(props.email === '' || props.password === ''){
           Alert.alert('Ai uitat să introduci toate datele!');
         } else {
-          register(props.email, props.password);
+          register(props.email, props.password, props.accType);
         }
         
         }}>
