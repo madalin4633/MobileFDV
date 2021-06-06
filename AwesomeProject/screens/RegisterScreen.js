@@ -1,5 +1,5 @@
 import React, { Component, useState, useContext } from "react";
-import { StyleSheet, View, Text, TextInput, Image, Dimensions, Platform, PixelRatio } from "react-native";
+import { StyleSheet, View, Text, TextInput, Image, Dimensions, Platform, PixelRatio, Pressable} from "react-native";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialRightIconTextbox from "../components/MaterialRightIconTextbox";
 import MaterialUnderlineTextbox from "../components/MaterialUnderlineTextbox";
@@ -8,6 +8,7 @@ import FontAwesomeIcon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from '@react-navigation/native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { AuthContext } from '../AuthProvider';
+import { Ionicons } from '@expo/vector-icons';
 
 const {
   width: SCREEN_WIDTH,
@@ -26,6 +27,23 @@ export function actuatedNormalize(size) {
   }
 }
 
+function MyCheckbox({
+  checked,
+  onChange ,
+}) {
+  function onCheckmarkPress() {
+    onChange(!checked);
+  }
+
+  return (
+    <Pressable
+      style={[styles.checkboxBase, checked && styles.checkboxChecked]}
+      onPress={onCheckmarkPress}>
+      {checked && <Ionicons name="checkmark" size={24} color="white" />}
+    </Pressable>
+  );
+}
+
 
 function RegisterScreen({ route, navigation }) {
   const navigationn = useNavigation();
@@ -37,6 +55,7 @@ function RegisterScreen({ route, navigation }) {
   const [showPassword, setShowPassword] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [checked, onChange] = useState(false);
 
   const { loginG, loginF } = useContext(AuthContext);
 
@@ -78,11 +97,18 @@ function RegisterScreen({ route, navigation }) {
         </View>
         <Text style={styles.parola}>Parolă</Text>
       </View>
+      <View style={styles.checkboxContainer}>
+        <MyCheckbox
+          checked={checked}
+          onChange={onChange} />
+        <Text style={styles.checkboxLabel}>{`Sunt de acord cu prelucrarea datelor personale.`}</Text>
+      </View>
       <MaterialButtonPrimary3
         style={styles.materialButtonPrimary1}
         email={email}
         password={password}
         accType={type}
+        GDPR={checked}
       ></MaterialButtonPrimary3>
       <View>
         <Text style={styles.text}>sau folosește alte conturi sociale</Text>
@@ -276,7 +302,45 @@ const styles = StyleSheet.create({
     marginTop: 15,
     marginLeft: 29,
     marginRight: 29
-  }
+  },
+  checkboxBase: {
+    marginTop: 10,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: "rgba(0,149,218,1)",
+    backgroundColor: 'transparent',
+  },
+
+  checkboxChecked: {
+    backgroundColor: "rgba(0,149,218,1)",
+  },
+
+  appContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  appTitle: {
+    marginVertical: 16,
+    fontWeight: 'bold',
+    fontSize: 24,
+  },
+
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  checkboxLabel: {
+    marginTop: 10,
+    marginLeft: actuatedNormalize(7),
+    fontWeight: "normal",
+    fontSize: actuatedNormalize(11),
+  },
 });
 
 export default RegisterScreen;

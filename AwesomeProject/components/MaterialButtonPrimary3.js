@@ -1,25 +1,35 @@
 import React, { Component, useContext } from "react";
 import { StyleSheet, TouchableOpacity, Text, Alert } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-import {AuthContext} from '../AuthProvider';
+import { AuthContext } from '../AuthProvider';
 
 function MaterialButtonPrimary3(props) {
   const navigation = useNavigation();
 
-  const {register} = useContext(AuthContext);
+  const { register } = useContext(AuthContext);
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[styles.container, props.style]}
       onPress={() => {
-        if(props.email === '' || props.password === ''){
+        try{
+        let okToReg = 1;
+        if (props.email === '' || props.password === '') {
+          okToReg = 0;
           Alert.alert('Ai uitat să introduci toate datele!');
-        } else {
+        }
+        if (props.GDPR === false) {
+          okToReg = 0;
+          Alert.alert('Avem nevoie de permisiunea prelucrării datelor!');
+        }
+        if (okToReg === 1) {
           register(props.email, props.password, props.accType);
         }
-        
-        }}>
-        <Text style={styles.asociație}>Înregistrează-mă</Text>
+      } catch(e) {
+        Alert.alert(e.message);
+    }
+      }}>
+      <Text style={styles.asociație}>Înregistrează-mă</Text>
     </TouchableOpacity>
   );
 }

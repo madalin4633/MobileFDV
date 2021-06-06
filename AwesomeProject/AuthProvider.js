@@ -46,6 +46,9 @@ export const AuthProvider = ({ children }) => {
                                         edited: 0,
                                         email: email
                                     });
+                            })
+                            .catch((error) => {
+                                Alert.alert(error.message);
                             });
                     } catch (e) {
                         Alert.alert(e.message);
@@ -137,33 +140,70 @@ export const AuthProvider = ({ children }) => {
                             expirationDate,
                             permissions,
                             declinedPermissions,
+                            user
                         } = await Facebook.logInWithReadPermissionsAsync({
                             permissions: ['email', 'public_profile'],
                         });
                         if (type === 'success') {
-                            const credential = firebase.auth.FacebookAuthProvider.credential(token);
+
+                            
                             // Sign in with credential from the Facebook user.
-                            firebase.auth().signInWithCredential(credential).then(function (resultt) {
-                                firebase
-                                    .database()
-                                    .ref('/accounts/' + resultt.user.uid)
-                                    .set({
-                                        type: accType,
-                                        edited: 0,
-                                        email: resultt.user.email
+                            fetch(`https://graph.facebook.com/me?fields=id,name,email,birthday&access_token=${token}`)
+                                .then(response => response.json())
+                                .then(data => { //verificam daca se logheaza in sectiunea tipului de cont pe care este email-ul
+                                    //console.log(data.email);
+                                    let okToAuth = 1;
+                                    var database = firebase.database();
+                                    var userRef = database.ref("accounts");
+                                    userRef.on('value', function (snapshot) {
+                                        snapshot.forEach(function (childSnapshot) {
+                                            var childData = childSnapshot.val();
+                                            if (childData.email === data.email && childData.type != accType) {
+                                                okToAuth = 0;
+                                                Alert.alert('Contul tău este de alt tip!');
+                                            }
+                                        });
                                     });
-                                Alert.alert('User signed in with Facebook!');
-                            }).catch((error) => {
-                                // Handle Errors here.
-                                var errorCode = error.code;
-                                var errorMessage = error.message;
-                                // The email of the user's account used.
-                                var email = error.email;
-                                // The firebase.auth.AuthCredential type that was used.
-                                var credential = error.credential;
-                                // ...
-                                Alert.alert(errorMessage);
-                            });
+
+                                    if(okToAuth===1){
+                                        const credential = firebase.auth.FacebookAuthProvider.credential(token);
+                                    } else {
+                                        Alert.alert('Contul tău este de alt tip!');
+                                    }
+
+                                })
+                                .catch((error) => {
+                                    // Handle Errors here.
+                                    var errorCode = error.code;
+                                    var errorMessage = error.message;
+                                    // The email of the user's account used.
+                                    var email = error.email;
+                                    // The firebase.auth.AuthCredential type that was used.
+                                    var credential = error.credential;
+                                    // ...
+                                    Alert.alert(errorMessage);
+                                });
+                            // firebase.auth().signInWithCredential(credential).then(function (resultt) {
+                            //     firebase
+                            //         .database()
+                            //         .ref('/accounts/' + resultt.user.uid)
+                            //         .set({
+                            //             type: accType,
+                            //             edited: 0,
+                            //             email: resultt.user.email
+                            //         });
+                            //     Alert.alert('User signed in with Facebook!');
+                            // }).catch((error) => {
+                            //     // Handle Errors here.
+                            //     var errorCode = error.code;
+                            //     var errorMessage = error.message;
+                            //     // The email of the user's account used.
+                            //     var email = error.email;
+                            //     // The firebase.auth.AuthCredential type that was used.
+                            //     var credential = error.credential;
+                            //     // ...
+                            //     Alert.alert(errorMessage);
+                            // });
                         } else {
                             Alert.alert('Error, try again later!');
                         }
