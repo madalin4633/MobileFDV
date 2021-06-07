@@ -1,16 +1,25 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from '@react-navigation/native';
+import { useFonts } from '@expo-google-fonts/inter';
+import firebase from '../database/firebaseDb';
 
 function MaterialBasicFooter1(props) {
 
   const navigationn = useNavigation();
 
+  let [fontsLoaded] = useFonts({
+    Quicksand: require('../assets/fonts/quicksand-700.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
     <View style={[styles.container, props.style]}>
       <TouchableOpacity style={styles.btnWrapper1}
-      onPress={() => navigationn.navigate('HomeScreen')}>
+        onPress={() => navigationn.navigate('HomeScreen')}>
         <MaterialCommunityIconsIcon
           name="home"
           style={styles.icon1}
@@ -24,7 +33,8 @@ function MaterialBasicFooter1(props) {
         ></MaterialCommunityIconsIcon>
         <Text style={styles.tasks}>tasks</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.btnWrapper3}>
+      <TouchableOpacity style={styles.btnWrapper3}
+        onPress={() => navigationn.navigate('RewardScreen')}>
         <MaterialCommunityIconsIcon
           name="trophy"
           style={styles.icon3}
@@ -32,7 +42,7 @@ function MaterialBasicFooter1(props) {
         <Text style={styles.rewards}>rewards</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.group}
-      onPress={() => navigationn.navigate('ProfileScreen')}>
+        onPress={() => navigationn.navigate('ProfileScreen')}>
         <MaterialCommunityIconsIcon
           name="account-circle"
           style={styles.icon4}

@@ -164,11 +164,31 @@ export const AuthProvider = ({ children }) => {
                                             }
                                         });
                                     });
-
+                                    console.log(okToAuth);
                                     if(okToAuth===1){
                                         const credential = firebase.auth.FacebookAuthProvider.credential(token);
-                                    } else {
-                                        Alert.alert('Contul tău este de alt tip!');
+                                        // Sign in with credential from the Facebook user.
+                                        firebase.auth().signInWithCredential(credential).then(function (result) {
+                                            firebase
+                                                .database()
+                                                .ref('/accounts/' + result.user.uid)
+                                                .set({
+                                                    type: accType,
+                                                    edited: 0,
+                                                    email: result.user.email
+                                                });
+                                            Alert.alert('User signed in with Facebook!');
+                                        }).catch((error) => {
+                                            // Handle Errors here.
+                                            var errorCode = error.code;
+                                            var errorMessage = error.message;
+                                            // The email of the user's account used.
+                                            var email = error.email;
+                                            // The firebase.auth.AuthCredential type that was used.
+                                            var credential = error.credential;
+                                            // ...
+                                            Alert.alert('Error, try again later!');
+                                        });
                                     }
 
                                 })
@@ -183,27 +203,6 @@ export const AuthProvider = ({ children }) => {
                                     // ...
                                     Alert.alert(errorMessage);
                                 });
-                            // firebase.auth().signInWithCredential(credential).then(function (resultt) {
-                            //     firebase
-                            //         .database()
-                            //         .ref('/accounts/' + resultt.user.uid)
-                            //         .set({
-                            //             type: accType,
-                            //             edited: 0,
-                            //             email: resultt.user.email
-                            //         });
-                            //     Alert.alert('User signed in with Facebook!');
-                            // }).catch((error) => {
-                            //     // Handle Errors here.
-                            //     var errorCode = error.code;
-                            //     var errorMessage = error.message;
-                            //     // The email of the user's account used.
-                            //     var email = error.email;
-                            //     // The firebase.auth.AuthCredential type that was used.
-                            //     var credential = error.credential;
-                            //     // ...
-                            //     Alert.alert(errorMessage);
-                            // });
                         } else {
                             Alert.alert('Error, try again later!');
                         }
@@ -216,9 +215,9 @@ export const AuthProvider = ({ children }) => {
                         var auth = firebase.auth();
 
                         auth.sendPasswordResetEmail(email).then(function () {
-                            Alert.alert('Email trimis, verifica inbox!');
+                            Alert.alert('Email trimis, verifică inbox!');
                         }).catch(function (error) {
-                            Alert.alert('Eroare, incearca mai tarziu.');
+                            Alert.alert('Eroare, mai încearcă.');
                         });
                     } catch (e) {
                         Alert.alert(e.message);

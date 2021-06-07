@@ -1,22 +1,27 @@
-import React, { Component, useContext } from "react";
+import React, { Component, useContext, useState, useEffect } from "react";
 import { StyleSheet, View, Image, Dimensions, TouchableOpacity, Text, Alert } from "react-native";
 import MaterialBasicFooter1 from "../components/MaterialBasicFooter1";
 import { useFonts } from '@expo-google-fonts/inter';
-import {AuthContext} from '../AuthProvider';
+import { AuthContext } from '../AuthProvider';
 import { useNavigation } from '@react-navigation/native';
-
+import firebase from '../database/firebaseDb';
+import LoadingScreen from './LoadingScreen';
 
 function HomeScreen(props) {
   const navigation = useNavigation();
-  const {user, logout} = useContext(AuthContext);
 
-  let [fontsLoaded] = useFonts({
-    Quicksand: require('../assets/fonts/quicksand-700.ttf'),
-  });
+  const { user, setUser } = useContext(AuthContext);
+  const [type, setType] = useState('');
+  console.log(user.uid);
 
-  if (!fontsLoaded) {
-    return null;
+  if (type === '') {
+    var database = firebase.database();
+    database.ref("/accounts/" + user.uid).on('value', function (snapshot) {
+      var childData = snapshot.val();
+      setType(childData.type);
+    });
   }
+  console.log(type);
 
   return (
     <View style={styles.container}>
@@ -25,7 +30,7 @@ function HomeScreen(props) {
         resizeMode="contain"
         style={styles.image1}
       ></Image>
-      
+      <Text>{user.uid}</Text>
       <MaterialBasicFooter1
         style={styles.materialBasicFooter1}
       ></MaterialBasicFooter1>

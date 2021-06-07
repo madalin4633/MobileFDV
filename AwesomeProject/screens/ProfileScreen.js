@@ -1,22 +1,23 @@
-import React, { Component, useContext } from "react";
+import React, { Component, useContext, useState } from "react";
 import { StyleSheet, View, Image, Dimensions, TouchableOpacity, Text, Alert } from "react-native";
 import MaterialBasicFooter1 from "../components/MaterialBasicFooter1";
 import { useFonts } from '@expo-google-fonts/inter';
-import {AuthContext} from '../AuthProvider';
+import { AuthContext } from '../AuthProvider';
 import { useNavigation } from '@react-navigation/native';
-
+import firebase from '../database/firebaseDb';
 
 function ProfileScreen(props) {
   const navigation = useNavigation();
-  const {user, logout} = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
+  const [type, setType] = useState('');
 
-  let [fontsLoaded] = useFonts({
-    Quicksand: require('../assets/fonts/quicksand-700.ttf'),
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
+    if (type === '') {
+        var database = firebase.database();
+        database.ref("/accounts/" + user.uid).on('value', function (snapshot) {
+            var childData = snapshot.val();
+            setType(childData.type);
+        });
+    }
 
   return (
     <View style={styles.container}>
@@ -27,7 +28,7 @@ function ProfileScreen(props) {
       ></Image>
       <TouchableOpacity
         style={[styless.container, props.style]}
-        onPress = {() => {
+        onPress={() => {
           logout();
         }}>
         <Text style={styless.deconnect}>

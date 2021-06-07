@@ -10,6 +10,7 @@ import LoadingScreen from './screens/LoadingScreen';
 import WelcomeScreen from './screens/WelcomeScreen';
 import PassScreen from './screens/PassScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import RewardScreen from './screens/RewardScreen';
 
 
 const Stack = createStackNavigator();
@@ -37,6 +38,7 @@ const Routes = () => {
           <>
           <Stack.Screen name="HomeScreen" component={HomeScreen} />
           <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+          <Stack.Screen name="RewardScreen" component={RewardScreen} />
           </>
           ) : (
             <>

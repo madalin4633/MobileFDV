@@ -13,6 +13,7 @@
       "package": "com.awesomeproject",
       "googleServicesFile": "./google-services.json"
     },
+    "orientation": "portrait",
     "extra": {
       "facebook":{
         "appId": "564337301215491"
