@@ -12,7 +12,6 @@ function HomeScreen(props) {
 
   const { user, setUser } = useContext(AuthContext);
   const [type, setType] = useState('');
-  console.log(user.uid);
 
   if (type === '') {
     var database = firebase.database();
@@ -21,7 +20,6 @@ function HomeScreen(props) {
       setType(childData.type);
     });
   }
-  console.log(type);
 
   return (
     <View style={styles.container}>

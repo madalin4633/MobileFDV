@@ -6,6 +6,7 @@ import { AuthContext } from '../AuthProvider';
 import { useNavigation } from '@react-navigation/native';
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import firebase from '../database/firebaseDb';
+import { greaterThan } from "react-native-reanimated";
 
 function RewardScreen(props) {
     const navigation = useNavigation();
@@ -82,15 +83,37 @@ function RewardScreen(props) {
                     </View>
                 </View>
                 <TouchableOpacity
-                    style={[styless.container, props.style]}>
+                    style={[styless.container, props.style]}
+                    onPress={() => {
+                        if (title === '' || descr === '' || hours === '' || people === '') {
+                            Alert.alert("Toate câmpurile sunt obligatorii! Apasă (i) pentru indicații.")
+                        } else {
+                            if (!Number.isInteger(parseInt(hours)) || !Number.isInteger(parseInt(people))) {
+                                Alert.alert("Introdu numere întregi pozitive.")
+                            } else {
+                                var database1 = firebase.database();
+                                let val = Math.floor(1000 + Math.random() * 9000);
+                                database1.ref('/rewards/').push({
+                                    code: val,
+                                    title: title,
+                                    description: descr,
+                                    hours: parseInt(hours),
+                                    people: parseInt(people),
+                                    created_at: firebase.database.ServerValue.TIMESTAMP,
+                                    created_by: user.uid,
+                                });
+                                setReward("Codul este: " + val.toString());
+                            }
+                        }
+                    }}>
                     <Text style={styless.deconnect}>
                         Generează</Text>
                 </TouchableOpacity>
                 <MaterialBasicFooter1
                     style={styles.materialBasicFooter1}
                 ></MaterialBasicFooter1>
-                <Text style={styles.autentificare}>{rewardCode}</Text>
-            </View>
+                {rewardCode === '' ? null : <Text style={reward.rewardCode}>{rewardCode}</Text>}
+            </View >
         );
     else return (
         <View style={styles.container}>
@@ -118,7 +141,54 @@ function RewardScreen(props) {
 
             <TouchableOpacity
                 style={[styless.container, props.style]}>
-                <Text style={styless.deconnect}>
+                <Text style={styless.deconnect}
+                    onPress={() => {
+                        if (title === '') {
+                            Alert.alert("Nu ai introdus niciun cod!");
+                        } else {
+                            var database = firebase.database();
+                            var userRef = database.ref("/rewards/");
+                            let okToGo = 0;
+                            let deja = 0;
+                            let once = 0;
+                            userRef.on('value', function (snapshot) {
+                                snapshot.forEach(function (childSnapshot) {
+                                    var childData = childSnapshot.val();
+                                    //console.log(alreadyR);
+                                    let actualDate = new Date(firebase.database.ServerValue.TIMESTAMP);
+                                    let dateToCheck = new Date(childData.created_at.toString());
+                                    var isSameDay = (dateToCheck.getDate() === actualDate.getDate()
+                                        && dateToCheck.getMonth() === actualDate.getMonth()
+                                        && dateToCheck.getFullYear() === actualDate.getFullYear())
+                                    if (childData.code === parseInt(title) && !isSameDay) {
+                                        //console.log(childData);
+                                        var redeems = childSnapshot.child("redeemed_by").numChildren();
+                                        let okA = 1;
+                                        //console.log(redeems);
+                                        if (redeems > 0) {
+                                            var alreadyR = childSnapshot.child("redeemed_by");
+                                            alreadyR.forEach(function (grandChild) {
+                                                var grandData = grandChild.val();
+                                                if (grandData.user === user.uid)
+                                                    { okA = 0; deja = 1;}
+                                            });
+                                        }
+                                        if (redeems < childData.people && okA === 1 && once===0){
+                                            okToGo = 1;
+                                            once = 1;
+                                        database.ref("/rewards/" + childSnapshot.key + "/redeemed_by/").push({
+                                            user: user.uid
+                                        });
+                                        Alert.alert('Cod revendicat cu SUCCES!');
+                                        }
+                                    }
+                                });
+                            });
+                            if (deja === 1 && once === 0 ) {
+                                Alert.alert('Cod deja revendicat.');
+                            } else { if (okToGo === 0) Alert.alert('Cod incorect sau expirat.'); }
+                        }
+                    }}>
                     Revendică</Text>
             </TouchableOpacity>
             <MaterialBasicFooter1
@@ -127,6 +197,22 @@ function RewardScreen(props) {
         </View>
     );
 }
+
+const reward = StyleSheet.create({
+    rewardCode: {
+        fontFamily: "Quicksand",
+        color: "green",
+        textAlign: "center",
+        fontSize: 20,
+        flexDirection: "row",
+        borderColor: "green",
+        backgroundColor: "lightgreen",
+        marginTop: "5%",
+        paddingLeft: 15,
+        paddingRight: 15,
+        borderRadius: 10,
+    }
+});
 
 const styles = StyleSheet.create({
     container: {
