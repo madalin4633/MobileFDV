@@ -78,6 +78,7 @@ function RegisterScreen({ route, navigation }) {
           <TextInput
             placeholder={"unul pe care îl verifici des" || "Placeholder"}
             style={styless.inputStyle}
+            keyboardType='email-address'
             onChangeText={(text) => setEmail(text)}
             value={email}
           ></TextInput>

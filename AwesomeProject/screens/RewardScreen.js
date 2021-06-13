@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     },
     titleStack: {
         marginTop: "2%",
-        flexDirection: "row"
+        flexDirection: "row",
     },
     titleStackk: {
         marginTop: "10%",
@@ -310,7 +310,7 @@ const stylesss = StyleSheet.create({
         fontSize: 16,
         lineHeight: 16,
         paddingBottom: 8,
-        width: 175
+        width: 250
     }
 });
 

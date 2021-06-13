@@ -11,6 +11,7 @@ import WelcomeScreen from './screens/WelcomeScreen';
 import PassScreen from './screens/PassScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import RewardScreen from './screens/RewardScreen';
+import TasksScreen from './screens/TasksScreen';
 
 
 const Stack = createStackNavigator();
@@ -37,6 +38,7 @@ const Routes = () => {
           { user ? (
           <>
           <Stack.Screen name="HomeScreen" component={HomeScreen} />
+          <Stack.Screen name="TasksScreen" component={TasksScreen} />
           <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
           <Stack.Screen name="RewardScreen" component={RewardScreen} />
           </>

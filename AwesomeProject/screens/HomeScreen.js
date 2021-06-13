@@ -29,6 +29,13 @@ function HomeScreen(props) {
         style={styles.image1}
       ></Image>
       <Text>{user.uid}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
+        <View>
+          <Text style={{ width: 50, textAlign: 'center' }}>Hello</Text>
+        </View>
+        <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
+      </View>
       <MaterialBasicFooter1
         style={styles.materialBasicFooter1}
       ></MaterialBasicFooter1>

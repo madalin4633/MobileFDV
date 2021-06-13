@@ -26,7 +26,8 @@ function MaterialBasicFooter1(props) {
         ></MaterialCommunityIconsIcon>
         <Text style={styles.home}>home</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.btnWrapper2}>
+      <TouchableOpacity style={styles.btnWrapper2}
+       onPress={() => navigationn.navigate('TasksScreen')}>
         <MaterialCommunityIconsIcon
           name="bank-transfer"
           style={styles.icon2}
