@@ -12,29 +12,59 @@ function HomeScreen(props) {
 
   const { user, setUser } = useContext(AuthContext);
   const [type, setType] = useState('');
+  const [edit, setEdit] = useState('');
+
+  
+  let [fontsLoaded] = useFonts({
+    Quicksand: require('../assets/fonts/quicksand-700.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return <LoadingScreen/>;
+  }
 
   if (type === '') {
     var database = firebase.database();
     database.ref("/accounts/" + user.uid).on('value', function (snapshot) {
       var childData = snapshot.val();
       setType(childData.type);
+      setEdit(childData.edited);
     });
   }
-
-  return (
+  if (edit === 1)
+    return (
+      <View style={styles.container}>
+        <Image
+          source={require("../assets/images/fabrica_de_voluntari.png")}
+          resizeMode="contain"
+          style={styles.image1}
+        ></Image>
+        <Text>{user.uid}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
+          <View>
+            <Text style={{ width: 50, textAlign: 'center' }}>Hello</Text>
+          </View>
+          <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
+        </View>
+        <MaterialBasicFooter1
+          style={styles.materialBasicFooter1}
+        ></MaterialBasicFooter1>
+      </View>
+    );
+  else return (
     <View style={styles.container}>
       <Image
         source={require("../assets/images/fabrica_de_voluntari.png")}
         resizeMode="contain"
         style={styles.image1}
       ></Image>
-      <Text>{user.uid}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
-        <View>
-          <Text style={{ width: 50, textAlign: 'center' }}>Hello</Text>
-        </View>
-        <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
+      <View style={{ flexDirection: 'column', alignItems: 'center', marginTop: "40%" }}>
+        <View style={{width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginBottom: 25}} />
+        <Text style={styles.textW}>Bine ai venit,</Text>
+        <Text style={styles.textW}>completează-ți profilul</Text>
+        <Text style={styles.textW}>pentru a debloca aplicația.</Text>
+        <View style={{ width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginTop: 30 }} />
       </View>
       <MaterialBasicFooter1
         style={styles.materialBasicFooter1}
@@ -44,6 +74,12 @@ function HomeScreen(props) {
 }
 
 const styles = StyleSheet.create({
+  textW: {
+    textAlign: 'center', 
+    fontFamily: "Quicksand",
+    fontSize: 25,
+    color: "black"
+  },
   container: {
     flex: 1,
     alignItems: "center"
@@ -59,33 +95,6 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     position: "absolute",
     bottom: 0
-  }
-});
-
-const styless = StyleSheet.create({
-  container: {
-    backgroundColor: "red",
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    borderRadius: 5,
-    shadowColor: "#000",
-    marginTop: 100,
-    shadowOffset: {
-      width: 0,
-      height: 1
-    },
-    shadowOpacity: 0.35,
-    shadowRadius: 5,
-    elevation: 2,
-    minWidth: 88,
-    paddingLeft: 16,
-    paddingRight: 16
-  },
-  deconnect: {
-    color: "#fff",
-    fontSize: 22,
-    fontFamily: 'Quicksand'
   }
 });
 

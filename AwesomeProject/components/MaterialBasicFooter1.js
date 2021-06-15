@@ -4,18 +4,12 @@ import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommun
 import { useNavigation } from '@react-navigation/native';
 import { useFonts } from '@expo-google-fonts/inter';
 import firebase from '../database/firebaseDb';
+import LoadingScreen from "../screens/LoadingScreen";
 
 function MaterialBasicFooter1(props) {
 
   const navigationn = useNavigation();
 
-  let [fontsLoaded] = useFonts({
-    Quicksand: require('../assets/fonts/quicksand-700.ttf'),
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
   return (
     <View style={[styles.container, props.style]}>
       <TouchableOpacity style={styles.btnWrapper1}
