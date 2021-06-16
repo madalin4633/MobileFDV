@@ -56,7 +56,10 @@ function RewardScreen(props) {
                         resizeMode="contain"
                         style={styles.image1}
                     ></Image>
-                    <Text style={styles.acorda}>Acordă o recompensă</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 15 }}>
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Acordă recompensă</Text>
+        </View>
                     <Text style={styles.loremIpsum1}>
                         Introdu corect datele și distribuie codul.
                     </Text>
@@ -132,6 +135,10 @@ function RewardScreen(props) {
                         <Text style={styless.deconnect}>
                             Generează</Text>
                     </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 20 }}>
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici personale</Text>
+        </View>
                     <MaterialBasicFooter1
                         style={styles.materialBasicFooter1}
                     ></MaterialBasicFooter1>
@@ -146,7 +153,10 @@ function RewardScreen(props) {
                     resizeMode="contain"
                     style={styles.image1}
                 ></Image>
-                <Text style={styles.acorda}>Primește o recompensă</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 15 }}>
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Primește recompensă</Text>
+        </View>
                 <Text style={styles.loremIpsum1}>
                     Introdu corect codul de la coordonator.
                 </Text>
@@ -219,6 +229,10 @@ function RewardScreen(props) {
                         }}>
                         Revendică</Text>
                 </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 20 }}>
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici asociație</Text>
+        </View>
                 <MaterialBasicFooter1
                     style={styles.materialBasicFooter1}
                 ></MaterialBasicFooter1>
