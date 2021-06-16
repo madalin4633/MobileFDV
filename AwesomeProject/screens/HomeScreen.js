@@ -14,13 +14,13 @@ function HomeScreen(props) {
   const [type, setType] = useState('');
   const [edit, setEdit] = useState('');
 
-  
+
   let [fontsLoaded] = useFonts({
     Quicksand: require('../assets/fonts/quicksand-700.ttf'),
   });
 
   if (!fontsLoaded) {
-    return <LoadingScreen/>;
+    return <LoadingScreen />;
   }
 
   if (type === '') {
@@ -40,13 +40,12 @@ function HomeScreen(props) {
           style={styles.image1}
         ></Image>
         <Text>{user.uid}</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
-          <View>
-            <Text style={{ width: 50, textAlign: 'center' }}>Hello</Text>
-          </View>
-          <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width}}>
+          <View style={{width: Dimensions.get('window').width*8/15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto'}} />
+          <Text style={{width: Dimensions.get('window').width*7/15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5}}>profil</Text>
         </View>
+        
         <MaterialBasicFooter1
           style={styles.materialBasicFooter1}
         ></MaterialBasicFooter1>
@@ -60,7 +59,7 @@ function HomeScreen(props) {
         style={styles.image1}
       ></Image>
       <View style={{ flexDirection: 'column', alignItems: 'center', marginTop: "40%" }}>
-        <View style={{width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginBottom: 25}} />
+        <View style={{ width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginBottom: 25 }} />
         <Text style={styles.textW}>Bine ai venit,</Text>
         <Text style={styles.textW}>completează-ți profilul</Text>
         <Text style={styles.textW}>pentru a debloca aplicația.</Text>
@@ -75,7 +74,7 @@ function HomeScreen(props) {
 
 const styles = StyleSheet.create({
   textW: {
-    textAlign: 'center', 
+    textAlign: 'center',
     fontFamily: "Quicksand",
     fontSize: 25,
     color: "black"

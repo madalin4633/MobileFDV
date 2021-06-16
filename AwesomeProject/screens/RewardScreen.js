@@ -183,12 +183,12 @@ function RewardScreen(props) {
                                         var isSameDay = (dateToCheck.getDate() === actualDate.getDate()
                                             && dateToCheck.getMonth() === actualDate.getMonth()
                                             && dateToCheck.getFullYear() === actualDate.getFullYear())
-                                        console.log(dateToCheck.getDate());
-                                        console.log(actualDate.getDate());
-                                        console.log(dateToCheck.getMonth());
-                                        console.log(actualDate.getMonth());
-                                        console.log(dateToCheck.getFullYear());
-                                        console.log(actualDate.getFullYear());
+                                        // console.log(dateToCheck.getDate());
+                                        // console.log(actualDate.getDate());
+                                        // console.log(dateToCheck.getMonth());
+                                        // console.log(actualDate.getMonth());
+                                        // console.log(dateToCheck.getFullYear());
+                                        // console.log(actualDate.getFullYear());
                                         if (childData.code === parseInt(title) && !isSameDay) {
                                             //console.log(childData);
                                             var redeems = childSnapshot.child("redeemed_by").numChildren();

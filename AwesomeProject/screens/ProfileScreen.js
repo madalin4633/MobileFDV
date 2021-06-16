@@ -1,5 +1,5 @@
-import React, { Component, useContext, useState, useEffect } from "react";
-import { StyleSheet, View, Image, Dimensions, Text, Alert, TextInput, KeyboardAvoidingView } from "react-native";
+import React, { Component, useContext, useState, useEffect, isValidElement } from "react";
+import { StyleSheet, View, Image, Dimensions, Text, Alert, TextInput, KeyboardAvoidingView, FlatList } from "react-native";
 import MaterialBasicFooter1 from "../components/MaterialBasicFooter1";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useFonts } from '@expo-google-fonts/inter';
@@ -10,6 +10,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import * as ImagePicker from 'expo-image-picker';
 import Constant from 'expo-constants';
+import { getActiveChildNavigationOptions } from "react-navigation";
 
 function ProfileScreen(props) {
   useEffect(() => {
@@ -39,26 +40,38 @@ function ProfileScreen(props) {
   const [initial, setInitial] = useState(false);
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
+  const [childData, setChild] = useState('');
+  const [ngos, setNgos] = useState([]);
 
-  const [imageUrl, setImageUrl] = useState(undefined);
-  var childData = {
-    name: null,
-    description: null,
-    identifier: null,
-    location: null,
-    phone: null
+  const getProfileInfo = async () => {
+    var database2 = firebase.database();
+    let urlString = type === 0 ? "/volunteers/" : "/ngos/";
+    childDataObject = await database2.ref(urlString + user.uid.toString()).once('value');
+    setChild(childDataObject.toJSON());
   };
-  // let once = 1;
-  // //daca ma decid sa fac ecranul de edit la ce exista deja
-  // if(once === 1){
-  // var database2 = firebase.database();
-  // let urlString = type === 0 ? "/volunteers/" : "/ngos/";
-  // database2.ref(urlString + user.uid.toString()).on('value', function (snapshot) {
-  //     childData = snapshot.val();
-  //     once = 0;
-  // });}
 
+  const getNGOs = async () => {
+    var database2 = firebase.database();
+    ngosDataObject = await database2.ref('/ngos/').on('value', function (snapshot) {
+      var ngosHere = [];
+      snapshot.forEach(function (childSnapshot) {
+        var inPending = childSnapshot.child("/pending/" + user.uid.toString()).numChildren();
+        var accepted = childSnapshot.child("/accepted/" + user.uid.toString()).numChildren();
+        var refused = childSnapshot.child("/refused/" + user.uid.toString()).numChildren();
+        if (inPending === 0 && accepted === 0 && refused === 0) {
+          let object = {};
+          object['name'] = childSnapshot.toJSON().name;
+          object['id'] = childSnapshot.key;
+          object['description'] = childSnapshot.toJSON().description;
+          ngosHere.push(object);
+        }
+      });
+      setNgos(ngosHere)
+    });
+  }
   useEffect(() => {
+    getProfileInfo();
+    getNGOs();
     firebase.storage()
       .ref('/images/' + user.uid) //name in storage in firebase console
       .getDownloadURL()
@@ -66,7 +79,7 @@ function ProfileScreen(props) {
         setImage(url);
         setInitial(null);
       })
-      .catch((e) => console.log('Errors while downloading => ', e));
+      .catch((e) => { }); //ignore the error
   }, []);
 
   const onChange = (event, selectedDate) => {
@@ -118,16 +131,54 @@ function ProfileScreen(props) {
     var ref = firebase.storage().ref().child("images/" + imageName);
     return ref.put(blob);
   }
-  
-  
-  console.log(childData);
+
+  const Item = ({ item, onPress, backgroundColor, textColor }) => (
+    <View style={stylesList.container}>
+      <TouchableOpacity onPress={onPress} style={[stylesList.item, backgroundColor]}>
+        <Text style={[stylesList.title, textColor]}>{item.name}:</Text>
+        <Text style={[stylesList.text, textColor]}>{item.description}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderItem = ({ item }) => {
+    const backgroundColor = "rgba(0,149,218,1)";
+    const color = 'white';
+
+    return (
+      <Item
+        item={item}
+        onPress={() => {
+          let object = [];
+          let thisObject = {
+            name: item.name,
+            id: item.id,
+            description: item.description
+          }
+          ngos.forEach(element => {
+            if (element.name != thisObject.name)
+              object.push(element);
+          });
+          setNgos(object);
+          var database = firebase.database();
+          database.ref('/ngos/' + item.id + '/pending/' + user.uid).set({
+            user: user.uid
+          });
+          Alert.alert('Ai aplicat pentru ' + item.name + '.')
+        }}
+        backgroundColor={{ backgroundColor }}
+        textColor={{ color }}
+      />
+    );
+  };
+
   if (type === 1)
     return (
       <View style={styles.container}>
         <EntypoIcon name="info-with-circle" style={styles.icon4}></EntypoIcon>
         <KeyboardAvoidingView style={{ margin: 15 }} behavior="padding">
-          <View style={{ alignItems: 'center', marginBottom: "13%" }}>
-            <View style={{ height: 100, width: 100, borderRadius: 15, marginTop: "5%", justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ alignItems: 'center', marginBottom: "8%" }}>
+            <View style={{ height: 100, width: 100, borderRadius: 15, marginTop: "2%", justifyContent: 'center', alignItems: 'center' }}>
               {initial != false ? null : <Image source={require("../assets/images/avatar.png")} resizeMode="contain" style={styles.image1} />}
               {image === null ? null : <Image source={{ uri: image }} resizeMode="contain" style={styles.image1} />}
               <TouchableOpacity
@@ -142,14 +193,17 @@ function ProfileScreen(props) {
               </TouchableOpacity>
             </View>
           </View>
-
+          <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Profil asociație</Text>
+        </View>
           <View style={styles.titleStack}>
             <EntypoIcon name="users" style={styles.icon3}></EntypoIcon>
             <Text style={styles.title}>:</Text>
             <View style={[stylesss.container]}>
               <TextInput
                 value={name}
-                placeholder={"nume complet asociație, obligatoriu"}
+                placeholder={childData.name === null ? "nume complet asociație, obligatoriu" : childData.name}
                 style={stylesss.inputStyle}
                 onChangeText={(text) => setName(text)}
               ></TextInput>
@@ -160,9 +214,9 @@ function ProfileScreen(props) {
             <Text style={styles.title}>:</Text>
             <View style={[stylesss.container]}>
               <TextInput
-                placeholder={"scurtă descriere obligatorie"}
+                placeholder={childData.description === null ? "scurtă descriere obligatorie" : childData.description}
                 style={stylesss.inputStyle}
-                multiline= {true}
+                multiline={true}
                 onChangeText={(text) => setDescr(text)}
                 value={descr}
               ></TextInput>
@@ -173,7 +227,7 @@ function ProfileScreen(props) {
             <Text style={styles.title}>:</Text>
             <View style={[stylesss.container]}>
               <TextInput
-                placeholder={"oraș de origine, obligatoriu"}
+                placeholder={childData.location === null ? "oraș de origine, obligatoriu" : childData.location}
                 style={stylesss.inputStyle}
                 onChangeText={(text) => setLocation(text)}
                 value={location}
@@ -185,7 +239,7 @@ function ProfileScreen(props) {
             <Text style={styles.title}>:</Text>
             <View style={[stylesss.container]}>
               <TextInput
-                placeholder={"dată de contact obligatorie"}
+                placeholder={childData.phone === null ? "dată de contact obligatorie" : childData.phone}
                 keyboardType='phone-pad'
                 style={stylesss.inputStyle}
                 onChangeText={(text) => setPhone(text)}
@@ -198,7 +252,7 @@ function ProfileScreen(props) {
             <Text style={styles.title}>:</Text>
             <View style={[stylesss.container]}>
               <TextInput
-                placeholder={"nr. de înreg. în registrul asociațiilor"}
+                placeholder={childData.identifier === null ? "nr. de înreg. în registrul asociațiilor" : childData.identifier}
                 style={stylesss.inputStyle}
                 onChangeText={(text) => setIdentifier(text)}
                 value={identifier}
@@ -210,7 +264,7 @@ function ProfileScreen(props) {
             <Text style={styles.title}>:</Text>
             <View style={[stylesss.container]}>
               <TextInput
-                placeholder={"nume complet reprezentant legal"}
+                placeholder={childData.legal === null ? "nume complet reprezentant legal" : childData.legal}
                 style={stylesss.inputStyle}
                 onChangeText={(text) => setLegal(text)}
                 value={legal}
@@ -242,7 +296,7 @@ function ProfileScreen(props) {
         )}
         <TouchableOpacity
           style={{
-            backgroundColor: "green", justifyContent: "center", alignItems: "center", borderRadius: 5, shadowColor: "#000", marginTop: "5%", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.35, shadowRadius: 5, elevation: 2,
+            backgroundColor: "rgba(0,149,218,1)", justifyContent: "center", alignItems: "center", borderRadius: 5, shadowColor: "#000", marginTop: "5%", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.35, shadowRadius: 5, elevation: 2,
             paddingLeft: 28,
             paddingRight: 28,
             paddingBottom: 5,
@@ -283,7 +337,26 @@ function ProfileScreen(props) {
             Salvează datele</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styless.container, props.style]}
+          style={{
+            backgroundColor: "rgba(0,149,218,1)",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+            borderRadius: 5,
+            shadowColor: "#000",
+            marginTop: 70,
+            shadowOffset: {
+              width: 0,
+              height: 1
+            },
+            shadowOpacity: 0.35,
+            shadowRadius: 5,
+            elevation: 2,
+            paddingLeft: 16,
+            paddingRight: 16,
+            paddingBottom: 5,
+            paddingTop: 5
+          }}
           onPress={() => {
             logout();
           }}>
@@ -301,8 +374,8 @@ function ProfileScreen(props) {
   else return (
     <View style={styles.container}>
       <EntypoIcon name="info-with-circle" style={styles.icon4}></EntypoIcon>
-      <KeyboardAvoidingView style={{ margin: 15 }} behavior="padding">
-        <View style={{ alignItems: 'center', marginBottom: "13%" }}>
+      <KeyboardAvoidingView style={{ margin: 10 }} behavior="padding">
+        <View style={{ alignItems: 'center', marginBottom: "10%" }}>
           <View style={{ height: 100, width: 100, borderRadius: 15, marginTop: "5%", justifyContent: 'center', alignItems: 'center' }}>
             {initial != false ? null : <Image source={require("../assets/images/avatar.png")} resizeMode="contain" style={styles.image1} />}
             {image === null ? null : <Image source={{ uri: image }} resizeMode="contain" style={styles.image1} />}
@@ -318,7 +391,10 @@ function ProfileScreen(props) {
             </TouchableOpacity>
           </View>
         </View>
-
+        <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Profil personal</Text>
+        </View>
         <View style={styles.titleStack}>
           <EntypoIcon name="users" style={styles.icon3}></EntypoIcon>
           <Text style={styles.title}>:</Text>
@@ -338,7 +414,7 @@ function ProfileScreen(props) {
             <TextInput
               placeholder={childData.description === null ? "citat favorit, obligatoriu" : childData.description}
               style={stylesss.inputStyle}
-              multiline= {true}
+              multiline={true}
               onChangeText={(text) => setDescr(text)}
               value={descr}
             ></TextInput>
@@ -405,55 +481,78 @@ function ProfileScreen(props) {
           onChange={onChange}
         />
       )}
-      <TouchableOpacity
-        style={{
-          backgroundColor: "green", justifyContent: "center", alignItems: "center", borderRadius: 5, shadowColor: "#000", marginTop: "5%", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.35, shadowRadius: 5, elevation: 2,
-          paddingLeft: 28,
-          paddingRight: 28,
-          paddingBottom: 5,
-          paddingTop: 5
-        }}
-        onPress={() => {
-          let actualDate = new Date();
-          let dateToCheck = new Date(date);
-          var isSameDay = (dateToCheck.getDate() === actualDate.getDate()
-            && dateToCheck.getMonth() === actualDate.getMonth()
-            && dateToCheck.getFullYear() === actualDate.getFullYear());
-          if (name === '' || descr === '' || location === '' || phone === '' || identifier === '' || image === null || isSameDay === true)
-            Alert.alert("Toate câmpurile sunt obligatorii. Vezi (i) pentru instrucțiuni.");
-          else {
-            var database = firebase.database();
-            database.ref('/accounts/' + user.uid).update({
-              edited: 1
-            });
-            database.ref('/volunteers/' + user.uid).set({
-              name: name,
-              description: descr,
-              location: location,
-              phone: phone,
-              identifier: identifier,
-              created_at: firebase.database.ServerValue.TIMESTAMP,
-              founding_date: firebase.firestore.Timestamp.fromDate(date).toDate().toString()
-            });
-            uploadImage(image, user.uid).then(() => {
-              Alert.alert("Profil personal complet!");
-            }).catch((error) => {
-              Alert.alert(error);
-            });
+      <View style={{
+        marginBottom: 15,
+        flexDirection: "row",
+        marginTop: "2%"
+      }}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: "rgba(0,149,218,1)", justifyContent: "center", alignItems: "center", borderRadius: 5, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.35, shadowRadius: 5, elevation: 2,
+            paddingLeft: 12,
+            paddingRight: 12,
+            paddingBottom: 5,
+            paddingTop: 5,
+            marginLeft: 15
+          }}
+          onPress={() => {
+            let actualDate = new Date();
+            let dateToCheck = new Date(date);
+            var isSameDay = (dateToCheck.getDate() === actualDate.getDate()
+              && dateToCheck.getMonth() === actualDate.getMonth()
+              && dateToCheck.getFullYear() === actualDate.getFullYear());
+            if (name === '' || descr === '' || location === '' || phone === '' || identifier === '' || image === null || isSameDay === true)
+              Alert.alert("Toate câmpurile sunt obligatorii. Vezi (i) pentru instrucțiuni.");
+            else {
+              var database = firebase.database();
+              database.ref('/accounts/' + user.uid).update({
+                edited: 1
+              });
+              database.ref('/volunteers/' + user.uid).set({
+                name: name,
+                description: descr,
+                location: location,
+                phone: phone,
+                identifier: identifier,
+                created_at: firebase.database.ServerValue.TIMESTAMP,
+                founding_date: firebase.firestore.Timestamp.fromDate(date).toDate().toString()
+              });
+              uploadImage(image, user.uid).then(() => {
+                Alert.alert("Profil personal complet!");
+              }).catch((error) => {
+                Alert.alert(error);
+              });
 
-          }
-        }}>
-        <Text style={styless.deconnect}>
-          Salvează datele</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styless.container, props.style]}
-        onPress={() => {
-          logout();
-        }}>
-        <Text style={styless.deconnect}>
-          Deconectează-mă</Text>
-      </TouchableOpacity>
+            }
+          }}>
+          <Text style={styless.deconnect}>
+            Salvează date</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styless.container, props.style]}
+          onPress={() => {
+            logout();
+          }}>
+          <Text style={styless.deconnect}>
+            Deconectare</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
+        <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+        <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Asociații disponibile</Text>
+      </View>
+
+      <Text style={styles.loremIpsum1}>
+        Apasă și așteaptă confirmare de la ei.
+      </Text>
+
+      <FlatList
+        data={ngos}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+      />
+
       <View style={styles.footerContainer}>
         <MaterialBasicFooter1
           style={styles.materialBasicFooter1}
@@ -463,28 +562,29 @@ function ProfileScreen(props) {
   );
 }
 
-const pradip = StyleSheet.create({
-  header: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#333333',
-    shadowOffset: { width: -1, height: -3 },
-    shadowRadius: 2,
-    shadowOpacity: 0.4,
-    // elevation: 5,
-    paddingTop: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+const stylesList = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: "row",
+    marginTop: 0,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  panelHeader: {
-    alignItems: 'center',
+  item: {
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 10
   },
-  panelHandle: {
-    width: 40,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#00000040',
-    marginBottom: 10,
+  title: {
+    fontSize: 15,
+    width: Dimensions.get('window').width * 7 / 10,
+    fontFamily: 'Quicksand',
   },
+  text: {
+    fontSize: 10,
+    fontFamily: 'Quicksand'
+  }
 });
 
 const dateS = StyleSheet.create({
@@ -524,8 +624,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   titleStack: {
-    marginTop: "3.5%",
+    marginTop: "2.5%",
     flexDirection: "row",
+    marginLeft: 45
   },
   titleStackk: {
     marginTop: "10%",
@@ -576,19 +677,18 @@ const styles = StyleSheet.create({
     color: "rgba(96,93,93,1)",
     textAlign: "center",
     fontSize: 13,
-    marginBottom: 10
   }
 });
 
 const styless = StyleSheet.create({
   container: {
-    backgroundColor: "red",
+    backgroundColor: "rgba(0,149,218,1)",
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
     borderRadius: 5,
     shadowColor: "#000",
-    marginTop: "15%",
+    marginLeft: 20,
     shadowOffset: {
       width: 0,
       height: 1
@@ -603,7 +703,7 @@ const styless = StyleSheet.create({
   },
   deconnect: {
     color: "#fff",
-    fontSize: 22,
+    fontSize: 18,
     fontFamily: 'Quicksand'
   }
 });
