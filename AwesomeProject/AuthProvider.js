@@ -18,10 +18,16 @@ function isUserEqual(googleUser, firebaseUser) {
     return false;
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export const AuthContext = createContext();
+
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+
     return (
         <AuthContext.Provider
             value={{
@@ -70,22 +76,24 @@ export const AuthProvider = ({ children }) => {
                     try {
                         Google.logInAsync(config)
                             .then((resultt) => {
+
                                 let okToAuth = 1;
                                 let AlreadyExists = 0;
                                 var database = firebase.database();
-                                var userRef = database.ref("accounts");
-                                userRef.on('value', function (snapshot) {
+                                var userRef = database.ref("/accounts/").on('value', function (snapshot) {
                                     snapshot.forEach(function (childSnapshot) {
                                         var childData = childSnapshot.val();
-                                        if (childData.email === resultt.user.email && childData.type != accType) {
-                                            okToAuth = 0;
-                                        }
                                         if (childData.email === resultt.user.email && childData.type === accType) {
                                             AlreadyExists = 1;
                                         }
+                                        if (childData.email === resultt.user.email && childData.type != accType) {
+                                            okToAuth = 0;
+                                        }
                                     });
                                 });
-                                //result.user.email
+                                (async () => {
+                                    await sleep(7500);
+                                })();
                                 var unsubscribe = firebase.auth().onAuthStateChanged((firebaseUser) => {
                                     unsubscribe();
                                     // Check if we are already signed-in Firebase with the correct user.
@@ -97,15 +105,19 @@ export const AuthProvider = ({ children }) => {
 
                                         // Sign in with credential from the Google user.
                                         firebase.auth().signInWithCredential(credential).then(function (result) {
-                                            if (AlreadyExists === 0)
-                                                firebase
-                                                    .database()
-                                                    .ref('/accounts/' + result.user.uid)
-                                                    .set({
-                                                        type: accType,
-                                                        edited: 0,
-                                                        email: result.user.email
-                                                    });
+                                            firebase.database().ref('/accounts/').on('value', function (snapshot) {
+                                                var existsAlready = snapshot.child(result.user.uid.toString()).numChildren();
+
+                                                if (existsAlready === 0 && AlreadyExists != 1) {
+                                                    database
+                                                        .ref('/accounts/' + result.user.uid)
+                                                        .set({
+                                                            type: accType,
+                                                            edited: 0,
+                                                            email: result.user.email
+                                                        });
+                                                }
+                                            });
                                             Alert.alert('User signed in with Google!');
                                         }).catch((error) => {
                                             // Handle Errors here.
@@ -157,7 +169,7 @@ export const AuthProvider = ({ children }) => {
                                 .then(data => { //verificam daca se logheaza in sectiunea tipului de cont pe care este email-ul
                                     //console.log(data.email);
                                     let okToAuth = 1;
-                                    let AlreadyExists = 0;
+                                    let AlreadyExists;
                                     var database = firebase.database();
                                     var userRef = database.ref("accounts");
                                     userRef.on('value', function (snapshot) {
@@ -171,21 +183,25 @@ export const AuthProvider = ({ children }) => {
                                                 AlreadyExists = 1;
                                             }
                                         });
+                                        
                                     });
-                                    console.log(okToAuth);
                                     if (okToAuth === 1) {
                                         const credential = firebase.auth.FacebookAuthProvider.credential(token);
                                         // Sign in with credential from the Facebook user.
                                         firebase.auth().signInWithCredential(credential).then(function (result) {
-                                            if (AlreadyExists === 0)
-                                                firebase
-                                                    .database()
-                                                    .ref('/accounts/' + result.user.uid)
-                                                    .set({
-                                                        type: accType,
-                                                        edited: 0,
-                                                        email: result.user.email
-                                                    });
+                                            firebase.database().ref('/accounts/').on('value', function (snapshot) {
+                                                var existsAlready = snapshot.child(result.user.uid.toString()).numChildren();
+
+                                                if (existsAlready === 0 && AlreadyExists != 1) {
+                                                    database
+                                                        .ref('/accounts/' + result.user.uid)
+                                                        .set({
+                                                            type: accType,
+                                                            edited: 0,
+                                                            email: result.user.email
+                                                        });
+                                                }
+                                            });
                                             Alert.alert('User signed in with Facebook!');
                                         }).catch((error) => {
                                             // Handle Errors here.

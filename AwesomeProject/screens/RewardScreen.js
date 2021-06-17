@@ -10,7 +10,7 @@ import { greaterThan } from "react-native-reanimated";
 
 function RewardScreen(props) {
     const navigation = useNavigation();
-
+    
     const { user, setUser } = useContext(AuthContext);
     const [title, setTitle] = useState('');
     const [descr, setDescr] = useState('');
@@ -41,9 +41,11 @@ function RewardScreen(props) {
                 <Text style={home.textW}>pentru a debloca aplicația.</Text>
                 <View style={{ width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginTop: 30 }} />
             </View>
-            <MaterialBasicFooter1
-                style={styles.materialBasicFooter1}
-            ></MaterialBasicFooter1>
+            <View style={styles.footerContainer}>
+                <MaterialBasicFooter1
+                    style={styles.materialBasicFooter1}
+                ></MaterialBasicFooter1>
+            </View>
         </View>
     );
     else {
@@ -57,9 +59,9 @@ function RewardScreen(props) {
                         style={styles.image1}
                     ></Image>
                     <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 15 }}>
-          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
-          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Acordă recompensă</Text>
-        </View>
+                        <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+                        <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Acordă recompensă</Text>
+                    </View>
                     <Text style={styles.loremIpsum1}>
                         Introdu corect datele și distribuie codul.
                     </Text>
@@ -80,7 +82,7 @@ function RewardScreen(props) {
                             <TextInput
                                 placeholder={"text obligatoriu"}
                                 style={stylesss.inputStyle}
-                                multiline= {true}
+                                multiline={true}
                                 onChangeText={(text) => setDescr(text)}
                                 value={descr}
                             ></TextInput>
@@ -91,6 +93,7 @@ function RewardScreen(props) {
                         <View style={[stylesss.container]}>
                             <TextInput
                                 placeholder={"număr întreg"}
+                                keyboardType='phone-pad'
                                 style={stylesss.inputStyle}
                                 onChangeText={(text) => setHours(text)}
                                 value={hours}
@@ -102,6 +105,7 @@ function RewardScreen(props) {
                         <View style={[stylesss.container]}>
                             <TextInput
                                 placeholder={"număr întreg"}
+                                keyboardType='phone-pad'
                                 style={stylesss.inputStyle}
                                 onChangeText={(text) => setPeople(text)}
                                 value={people}
@@ -135,14 +139,17 @@ function RewardScreen(props) {
                         <Text style={styless.deconnect}>
                             Generează</Text>
                     </TouchableOpacity>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 20 }}>
-          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
-          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici personale</Text>
-        </View>
-                    <MaterialBasicFooter1
-                        style={styles.materialBasicFooter1}
-                    ></MaterialBasicFooter1>
                     {rewardCode === '' ? null : <Text style={reward.rewardCode}>{rewardCode}</Text>}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 20 }}>
+                        <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+                        <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici personale</Text>
+                    </View>
+                    <View style={styles.footerContainer}>
+                        <MaterialBasicFooter1
+                            style={styles.materialBasicFooter1}
+                        ></MaterialBasicFooter1>
+                    </View>
+
                 </View >
             );
         else return (
@@ -154,9 +161,9 @@ function RewardScreen(props) {
                     style={styles.image1}
                 ></Image>
                 <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 15 }}>
-          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
-          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Primește recompensă</Text>
-        </View>
+                    <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+                    <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Primește recompensă</Text>
+                </View>
                 <Text style={styles.loremIpsum1}>
                     Introdu corect codul de la coordonator.
                 </Text>
@@ -166,6 +173,7 @@ function RewardScreen(props) {
                         <TextInput
                             placeholder={"text obligatoriu"}
                             style={stylesss.inputStyle}
+                            keyboardType='phone-pad'
                             onChangeText={(text) => setTitle(text)}
                             value={title}
                         ></TextInput>
@@ -230,12 +238,14 @@ function RewardScreen(props) {
                         Revendică</Text>
                 </TouchableOpacity>
                 <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 20 }}>
-          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
-          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici asociație</Text>
-        </View>
-                <MaterialBasicFooter1
-                    style={styles.materialBasicFooter1}
-                ></MaterialBasicFooter1>
+                    <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+                    <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici asociație</Text>
+                </View>
+                <View style={styles.footerContainer}>
+                    <MaterialBasicFooter1
+                        style={styles.materialBasicFooter1}
+                    ></MaterialBasicFooter1>
+                </View>
             </View>
         );
     }
@@ -319,7 +329,9 @@ const styles = StyleSheet.create({
     materialBasicFooter1: {
         height: 56,
         width: Dimensions.get('window').width,
-        position: "absolute",
+    },
+    footerContainer: {
+        marginTop: 'auto',
         bottom: 0
     },
     acorda: {

@@ -1,4 +1,4 @@
-import React, { Component, useContext, useState, useEffect, isValidElement } from "react";
+import React, { Component, useContext, useState, useEffect, useRef } from "react";
 import { StyleSheet, View, Image, Dimensions, Text, Alert, TextInput, KeyboardAvoidingView, FlatList } from "react-native";
 import MaterialBasicFooter1 from "../components/MaterialBasicFooter1";
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -13,16 +13,7 @@ import Constant from 'expo-constants';
 import { getActiveChildNavigationOptions } from "react-navigation";
 
 function ProfileScreen(props) {
-  useEffect(() => {
-    (async () => {
-      if (Platform.OS !== 'web') {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          alert('Sorry, we need camera roll permissions to make this work!');
-        }
-      }
-    })();
-  }, []);
+
 
   const navigation = useNavigation();
   const { logout } = useContext(AuthContext);
@@ -40,14 +31,26 @@ function ProfileScreen(props) {
   const [initial, setInitial] = useState(false);
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
-  const [childData, setChild] = useState('');
+  const [childData, setChild] = useState({});
   const [ngos, setNgos] = useState([]);
+  const [edit, setEdit] = useState('');
+  const isMounted = useRef(null);
 
   const getProfileInfo = async () => {
     var database2 = firebase.database();
     let urlString = type === 0 ? "/volunteers/" : "/ngos/";
-    childDataObject = await database2.ref(urlString + user.uid.toString()).once('value');
-    setChild(childDataObject.toJSON());
+    database2.ref(urlString + user.uid.toString()).on('value', function (snapshot) {
+      if(snapshot.numChildren() != 0)
+        setChild(snapshot.toJSON());
+      else setChild({
+        name: null,
+        description: null,
+        location: null,
+        phone: null,
+        legal: null,
+        identifier: null
+      });
+    });
   };
 
   const getNGOs = async () => {
@@ -69,7 +72,19 @@ function ProfileScreen(props) {
       setNgos(ngosHere)
     });
   }
+
+  (async () => {
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+      }
+    }
+  })();
+
   useEffect(() => {
+    isMounted.current = true;
+
     getProfileInfo();
     getNGOs();
     firebase.storage()
@@ -80,6 +95,11 @@ function ProfileScreen(props) {
         setInitial(null);
       })
       .catch((e) => { }); //ignore the error
+
+      return () => {
+        // executed when unmount
+        isMounted.current = false;
+      }
   }, []);
 
   const onChange = (event, selectedDate) => {
@@ -107,6 +127,7 @@ function ProfileScreen(props) {
     database.ref("/accounts/" + user.uid).on('value', function (snapshot) {
       var childData = snapshot.val();
       setType(childData.type);
+      setEdit(childData.edited);
     });
   }
 
@@ -149,6 +170,7 @@ function ProfileScreen(props) {
       <Item
         item={item}
         onPress={() => {
+          if (edit === 1) {
           let object = [];
           let thisObject = {
             name: item.name,
@@ -162,9 +184,12 @@ function ProfileScreen(props) {
           setNgos(object);
           var database = firebase.database();
           database.ref('/ngos/' + item.id + '/pending/' + user.uid).set({
-            user: user.uid
+            user: user.uid,
+            name: childData.name
           });
-          Alert.alert('Ai aplicat pentru ' + item.name + '.')
+          Alert.alert('Ai aplicat pentru ' + item.name + '.');
+        }
+        else Alert.alert('Completează-ți datele întâi.');
         }}
         backgroundColor={{ backgroundColor }}
         textColor={{ color }}

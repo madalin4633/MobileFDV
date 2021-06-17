@@ -38,9 +38,11 @@ function TasksScreen(props) {
                     </View>
                     <View style={{ flex: 1, height: 1, backgroundColor: 'black' }} />
                 </View>
-                <MaterialBasicFooter1
-                    style={styles.materialBasicFooter1}
-                ></MaterialBasicFooter1>
+                <View style={styles.footerContainer}>
+                    <MaterialBasicFooter1
+                        style={styles.materialBasicFooter1}
+                    ></MaterialBasicFooter1>
+                </View>
             </View>
         );
     else return (
@@ -57,9 +59,11 @@ function TasksScreen(props) {
                 <Text style={home.textW}>pentru a debloca aplicația.</Text>
                 <View style={{ width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginTop: 30 }} />
             </View>
-            <MaterialBasicFooter1
-                style={styles.materialBasicFooter1}
-            ></MaterialBasicFooter1>
+            <View style={styles.footerContainer}>
+                <MaterialBasicFooter1
+                    style={styles.materialBasicFooter1}
+                ></MaterialBasicFooter1>
+            </View>
         </View>
     );
 }
@@ -81,15 +85,17 @@ const styles = StyleSheet.create({
     materialBasicFooter1: {
         height: 56,
         width: Dimensions.get('window').width,
-        position: "absolute",
-        bottom: 0
     },
     image1: {
         width: 100,
         height: 100,
         marginTop: 48,
         alignSelf: "center"
-    }
+    },
+    footerContainer: {
+        marginTop: 'auto',
+        bottom: 0
+    },
 });
 
 export default TasksScreen;
