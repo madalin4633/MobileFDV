@@ -1,13 +1,21 @@
 import React, { Component, useContext, useState, useEffect, useRef } from "react";
 import { StyleSheet, View, Image, Dimensions, TouchableOpacity, Linking, FlatList, Text, Alert } from "react-native";
 import MaterialBasicFooter1 from "../components/MaterialBasicFooter1";
-import { useFonts } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
 import { AuthContext } from '../AuthProvider';
 import { useNavigation } from '@react-navigation/native';
 import firebase from '../database/firebaseDb';
 import LoadingScreen from './LoadingScreen';
 import EntypoIcon from "react-native-vector-icons/Entypo";
+import styled from 'styled-components/native';
+import CircularProgress from '../components/CircularProgress';
 
+const Container = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+`;
 
 function HomeScreen(props) {
   const navigation = useNavigation();
@@ -20,20 +28,25 @@ function HomeScreen(props) {
   const [volunteers, setVolunteers] = useState([]);
   const [accepted, setAccepted] = useState([]);
   const [refused, setRefused] = useState([]);
+  const [level, setLevel] = useState({});
 
   const isMounted = useRef(null);
 
+  const [loaded] = useFonts({
+    Quicksand: require('../assets/fonts/quicksand-700.ttf'),
+  });
+
   const getArticles = async () => {
-    fetch('https://newsapi.org/v2/everything?q=voluntar&apiKey=e2e652c4424d404c9b139351e49602e4')
+    fetch('https://newsapi.org/v2/everything?q=voluntar&apiKey=e2e652c4424d404c9b139351e49602e4') //4dbc17e007ab436fb66416009dfb59a8
       .then(response => response.json())
       .then(data => setArticles(data.articles));
   }
-  if(articles==='')
+  if (articles === '')
     getArticles();
-  
+
   const getVolunteersPending = async () => {
     var database2 = firebase.database();
-    ngosDataObject = await database2.ref('/ngos/' + user.uid.toString() + "/pending/").on('value', function (snapshot) {
+    database2.ref('/ngos/' + user.uid.toString() + "/pending/").on('value', function (snapshot) {
       var volunteersHere = [];
       if (snapshot.numChildren() != 0)
         snapshot.forEach(function (childSnapshot) {
@@ -46,9 +59,59 @@ function HomeScreen(props) {
     });
   }
 
+  const getXP = async () => {
+    var database2 = firebase.database();
+    let level = {};
+    //in cate asociatii este
+    var ngosNo = 0;
+    database2.ref('/ngos/').on('value', function(snapshot){
+      snapshot.forEach(function (childSnapshot){
+        ngosNo += childSnapshot.child("accepted/" + user.uid).numChildren();
+      });
+      level['ngos_number']=ngosNo;
+    });
+
+    //vechimea in zile
+    database2.ref('/volunteers/' + user.uid).on('value', function (snapshot) {
+      let enter_date = new Date(snapshot.val().created_at);
+      let now_date = new Date();
+      var Difference_In_Time = now_date.getTime() - enter_date.getTime();
+      level['days'] = (Difference_In_Time / (1000 * 3600 * 24)).toFixed(3);
+    });
+
+    //cate recompense are si ore a lucrat
+    var rewards = 0;
+    var hours = 0;
+    database2.ref('/rewards/').on('value', function (snapshot) {
+      snapshot.forEach(function (childSnapshot) {
+        var redeems = childSnapshot.child("redeemed_by");
+        redeems.forEach(function (grandChild) {
+          var grandData = grandChild.val();
+          if (grandData.user === user.uid) {
+            rewards = rewards + 1;
+            hours = hours + childSnapshot.val().hours;
+          }
+        });
+      });
+      level['rewards'] = rewards;
+      level['hours'] = hours;
+    });
+
+    let player_xp = (ngosNo + rewards + hours) * 16 + level['days']*0.5;
+    
+    for (let step = 1; step < 12; step++) {
+      if(player_xp<4**step){
+        level['level']=step;
+        level['percentage'] = Math.round(100*(player_xp-4**(step-1))/(4**step-4**(step-1)));
+        break;
+      }
+    }
+    setLevel(level);
+  }
+
   const getVolunteersAccepted = async () => {
     var database2 = firebase.database();
-    ngosDataObject = await database2.ref('/ngos/' + user.uid.toString() + "/accepted/").on('value', function (snapshot) {
+    database2.ref('/ngos/' + user.uid.toString() + "/accepted/").on('value', function (snapshot) {
       var volunteersHere = [];
       if (snapshot.numChildren() != 0)
         snapshot.forEach(function (childSnapshot) {
@@ -63,7 +126,7 @@ function HomeScreen(props) {
 
   const getVolunteersRefused = async () => {
     var database2 = firebase.database();
-    ngosDataObject = await database2.ref('/ngos/' + user.uid.toString() + "/refused/").on('value', function (snapshot) {
+    database2.ref('/ngos/' + user.uid.toString() + "/refused/").on('value', function (snapshot) {
       var volunteersHere = [];
       if (snapshot.numChildren() != 0)
         snapshot.forEach(function (childSnapshot) {
@@ -78,14 +141,13 @@ function HomeScreen(props) {
   useEffect(() => {
     isMounted.current = true;
     getVolunteersPending();
-    getVolunteersAccepted();
-    getVolunteersRefused();
+    getXP();
 
     return () => {
       // executed when unmount
       isMounted.current = false;
     }
-}, []);
+  }, []);
 
   if (type === '') {
     var database = firebase.database();
@@ -98,7 +160,7 @@ function HomeScreen(props) {
 
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
     <View style={stylesList.container}>
-      <TouchableOpacity style={[stylesList.item, backgroundColor]}>
+      <TouchableOpacity style={[stylesList.item, backgroundColor]} onPress={onPress}>
         <Text style={[stylesList.title, textColor]}>{item.title}.</Text>
       </TouchableOpacity>
     </View>
@@ -127,50 +189,54 @@ function HomeScreen(props) {
       <View onPress={onPress} style={[stylesItemm.item, backgroundColor]}>
         <Text style={[stylesItemm.title, textColor]}>{item.name}</Text>
         <TouchableOpacity style={stylesItemm.touch} onPress={() => {
-          let object = [];
-          let thisObject = {
-            name: item.name,
-            id: item.id,
-          }
-          volunteers.forEach(element => {
-            if (element.name != thisObject.name)
-              object.push(element);
-          });
-          setVolunteers(object);
-          var database = firebase.database();
-          database.ref('/ngos/' + user.uid + '/pending/' + item.id).set({
-            user: null,
-            name: null
-          });
-          database.ref('/ngos/' + user.uid + '/accepted/' + item.id).set({
-            user: item.id,
-            name: item.name
-          });
-          Alert.alert(item.name + ' a fost acceptat(ă).');
+          try {
+            let object = [];
+            let thisObject = {
+              name: item.name,
+              id: item.id,
+            }
+            volunteers.forEach(element => {
+              if (element.name != thisObject.name)
+                object.push(element);
+            });
+            setVolunteers(object);
+            var database = firebase.database();
+            database.ref('/ngos/' + user.uid + '/pending/' + item.id).set({
+              user: null,
+              name: null
+            });
+            database.ref('/ngos/' + user.uid + '/accepted/' + item.id).set({
+              user: item.id,
+              name: item.name
+            });
+            Alert.alert(item.name + ' a fost acceptat(ă).');
+          } catch (e) { }
         }}>
           <EntypoIcon name="check" style={stylesItemm.icon3}></EntypoIcon>
         </TouchableOpacity>
         <TouchableOpacity style={stylesItemm.touch} onPress={() => {
-          let object = [];
-          let thisObject = {
-            name: item.name,
-            id: item.id,
-          }
-          volunteers.forEach(element => {
-            if (element.name != thisObject.name)
-              object.push(element);
-          });
-          setVolunteers(object);
-          var database = firebase.database();
-          database.ref('/ngos/' + user.uid + '/pending/' + item.id).set({
-            user: null,
-            name: null
-          });
-          database.ref('/ngos/' + user.uid + '/refused/' + item.id).set({
-            user: item.id,
-            name: item.name
-          });
-          Alert.alert(item.name + ' a fost respins(ă).');
+          try {
+            let object = [];
+            let thisObject = {
+              name: item.name,
+              id: item.id,
+            }
+            volunteers.forEach(element => {
+              if (element.name != thisObject.name)
+                object.push(element);
+            });
+            setVolunteers(object);
+            var database = firebase.database();
+            database.ref('/ngos/' + user.uid + '/pending/' + item.id).set({
+              user: null,
+              name: null
+            });
+            database.ref('/ngos/' + user.uid + '/refused/' + item.id).set({
+              user: item.id,
+              name: item.name
+            });
+            Alert.alert(item.name + ' a fost respins(ă).');
+          } catch (e) { }
         }}>
           <EntypoIcon name="cross" style={stylesItemm.icon3}></EntypoIcon>
         </TouchableOpacity>
@@ -178,13 +244,15 @@ function HomeScreen(props) {
     </View>
   );
 
-  
+
   const Itemmm = ({ item, onPress, backgroundColor, textColor }) => (
     <View style={stylesItemm.container}>
       <View onPress={onPress} style={[stylesItemm.item, backgroundColor]}>
-        <Text style={{fontSize: 14,
-    fontFamily: 'Quicksand',
-    width: 225, color: "white", }}>{item.name}</Text>
+        <Text style={{
+          fontSize: 14,
+          fontFamily: 'Quicksand',
+          width: 225, color: "white",
+        }}>{item.name}</Text>
       </View>
     </View>
   );
@@ -210,20 +278,144 @@ function HomeScreen(props) {
     );
   };
 
-  if (edit === 1) {
-    if (type === 0)
-      return (
-        <View style={styles.container}>
+  if (!loaded)
+    return <LoadingScreen />
+  else
+    if (edit === 1) {
+      if (type === 0)
+        return (
+          <View style={styles.container}>
+            <EntypoIcon name="info-with-circle" style={styles.icon3}></EntypoIcon>
+            <Image
+              source={require("../assets/images/fabrica_de_voluntari.png")}
+              resizeMode="contain"
+              style={styles.image1}
+            ></Image>
+            <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
+              <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+              <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Nivelul tău</Text>
+            </View>
+            <Text style={styles.loremIpsum1}>
+              În baza activității din toate organizațiile.
+            </Text>
+            <View style={{ height: 230 }}>
+
+              <Container>
+                <CircularProgress progress={level['percentage']} size={175} nivel={level['level']} />
+              </Container>
+
+              <TouchableOpacity
+                style={[styless.container, props.style]}>
+                <Text style={styless.deconnect}
+                  onPress={() => { }}>
+                  Vezi insignele tale</Text>
+              </TouchableOpacity>
+
+            </View>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
+              <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+              <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Știri despre "voluntar"</Text>
+            </View>
+            <Text style={styles.loremIpsum1}>
+              Derulează pentru mai multe articole.
+            </Text>
+            <FlatList
+              data={articles}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.title}
+            />
+            <View style={styles.footerContainer}>
+              <MaterialBasicFooter1
+                style={styles.materialBasicFooter1}
+              ></MaterialBasicFooter1>
+            </View>
+          </View>
+        );
+      else {
+        return (<View style={styles.container}>
+          <EntypoIcon name="info-with-circle" style={styles.icon3}></EntypoIcon>
           <Image
             source={require("../assets/images/fabrica_de_voluntari.png")}
             resizeMode="contain"
             style={styles.image1}
           ></Image>
+
           <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
             <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
-            <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Voluntari</Text>
+            <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Voluntarii tăi</Text>
           </View>
-          <View style={{ height: 290 }}></View>
+
+          <View style={{ width: Dimensions.get('window').width, height: 280 }}>
+            <View style={[stylesTab.container, props.style]}>
+              <View style={stylesTab.textWrapper}>
+                <TouchableOpacity style={{
+                  flex: 1,
+                  alignItems: "center",
+                  backgroundColor: tab === 1 ? "rgba(0,149,218,1)" : "#FFFFFF",
+                  padding: 6,
+                  borderWidth: 1,
+                  borderColor: "rgba(0,149,218,1)",
+                  borderBottomLeftRadius: 5,
+                  borderTopLeftRadius: 5
+                }}
+                  onPress={() => {
+                    setTab(1);
+
+                  }}>
+                  <Text style={{
+                    fontSize: 13,
+                    fontFamily: "Quicksand",
+                    color: tab === 1 ? "#FFFFFF" : "rgba(0,149,218,1)"
+                  }}>în așteptare</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{
+                  flex: 1,
+                  alignItems: "center",
+                  backgroundColor: tab === 2 ? "rgba(0,149,218,1)" : "#FFFFFF",
+                  padding: 6,
+                  borderWidth: 1,
+                  borderColor: "rgba(0,149,218,1)",
+                }}
+                  onPress={() => {
+                    setTab(2);
+                    getVolunteersAccepted();
+                  }}>
+                  <Text style={{
+                    fontSize: 13,
+                    fontFamily: "Quicksand",
+                    color: tab === 2 ? "#FFFFFF" : "rgba(0,149,218,1)"
+                  }}>acceptați</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{
+                  flex: 1,
+                  alignItems: "center",
+                  backgroundColor: tab === 3 ? "rgba(0,149,218,1)" : "#FFFFFF",
+                  padding: 6,
+                  borderWidth: 1,
+                  borderColor: "rgba(0,149,218,1)",
+                  borderBottomRightRadius: 5,
+                  borderTopRightRadius: 5
+                }}
+                  onPress={() => {
+                    setTab(3);
+                    getVolunteersRefused();
+                  }}>
+                  <Text style={{
+                    fontSize: 13,
+                    fontFamily: "Quicksand",
+                    color: tab === 3 ? "#FFFFFF" : "rgba(0,149,218,1)"
+                  }}>refuzați</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {tab === 1 ? <FlatList data={volunteers} renderItem={renderItem2} keyExtractor={(item) => item.name} /> : null}
+            {tab === 2 ? <FlatList data={accepted} renderItem={renderItem2} keyExtractor={(item) => item.name} /> : null}
+            {tab === 3 ? <FlatList data={refused} renderItem={renderItem2} keyExtractor={(item) => item.name} /> : null}
+
+
+          </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
             <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
@@ -242,128 +434,30 @@ function HomeScreen(props) {
               style={styles.materialBasicFooter1}
             ></MaterialBasicFooter1>
           </View>
+        </View>);
+      }
+    }
+    else return (
+      <View style={styles.container}>
+        <Image
+          source={require("../assets/images/fabrica_de_voluntari.png")}
+          resizeMode="contain"
+          style={styles.image1}
+        ></Image>
+        <View style={{ flexDirection: 'column', alignItems: 'center', marginTop: "40%" }}>
+          <View style={{ width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginBottom: 25 }} />
+          <Text style={styles.textW}>Bine ai venit,</Text>
+          <Text style={styles.textW}>completează-ți profilul</Text>
+          <Text style={styles.textW}>pentru a debloca aplicația.</Text>
+          <View style={{ width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginTop: 30 }} />
         </View>
-      );
-    else return (<View style={styles.container}>
-      <Image
-        source={require("../assets/images/fabrica_de_voluntari.png")}
-        resizeMode="contain"
-        style={styles.image1}
-      ></Image>
-
-      <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-        <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
-        <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Voluntari</Text>
-      </View>
-
-      <View style={{ width: Dimensions.get('window').width, height: 280 }}>
-        <View style={[stylesTab.container, props.style]}>
-          <View style={stylesTab.textWrapper}>
-            <TouchableOpacity style={{
-              flex: 1,
-              alignItems: "center",
-              backgroundColor: tab === 1 ? "rgba(0,149,218,1)" : "#FFFFFF",
-              padding: 6,
-              borderWidth: 1,
-              borderColor: "rgba(0,149,218,1)",
-              borderBottomLeftRadius: 5,
-              borderTopLeftRadius: 5
-            }}
-              onPress={() => {
-                setTab(1);
-              }}>
-              <Text style={{
-                fontSize: 13,
-                fontFamily: "Quicksand",
-                color: tab === 1 ? "#FFFFFF" : "rgba(0,149,218,1)"
-              }}>în așteptare</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{
-              flex: 1,
-              alignItems: "center",
-              backgroundColor: tab === 2 ? "rgba(0,149,218,1)" : "#FFFFFF",
-              padding: 6,
-              borderWidth: 1,
-              borderColor: "rgba(0,149,218,1)",
-            }}
-              onPress={() => {
-                setTab(2);
-              }}>
-              <Text style={{
-                fontSize: 13,
-                fontFamily: "Quicksand",
-                color: tab === 2 ? "#FFFFFF" : "rgba(0,149,218,1)"
-              }}>acceptați</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{
-              flex: 1,
-              alignItems: "center",
-              backgroundColor: tab === 3 ? "rgba(0,149,218,1)" : "#FFFFFF",
-              padding: 6,
-              borderWidth: 1,
-              borderColor: "rgba(0,149,218,1)",
-              borderBottomRightRadius: 5,
-              borderTopRightRadius: 5
-            }}
-              onPress={() => {
-                setTab(3);
-              }}>
-              <Text style={{
-                fontSize: 13,
-                fontFamily: "Quicksand",
-                color: tab === 3 ? "#FFFFFF" : "rgba(0,149,218,1)"
-              }}>refuzați</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.footerContainer}>
+          <MaterialBasicFooter1
+            style={styles.materialBasicFooter1}
+          ></MaterialBasicFooter1>
         </View>
-
-        {tab === 1 ? <FlatList data={volunteers} renderItem={renderItem2} keyExtractor={(item) => item.name} /> : null}
-        {tab === 2 ? <FlatList data={accepted} renderItem={renderItem2} keyExtractor={(item) => item.name} /> : null}
-        {tab === 3 ? <FlatList data={refused} renderItem={renderItem2} keyExtractor={(item) => item.name} /> : null}
-
-
       </View>
-
-      <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-        <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
-        <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Știri despre "voluntar"</Text>
-      </View>
-      <Text style={styles.loremIpsum1}>
-        Derulează pentru mai multe articole.
-      </Text>
-      <FlatList
-        data={articles}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.title}
-      />
-      <View style={styles.footerContainer}>
-        <MaterialBasicFooter1
-          style={styles.materialBasicFooter1}
-        ></MaterialBasicFooter1>
-      </View>
-    </View>);
-  }
-  else return (
-    <View style={styles.container}>
-      <Image
-        source={require("../assets/images/fabrica_de_voluntari.png")}
-        resizeMode="contain"
-        style={styles.image1}
-      ></Image>
-      <View style={{ flexDirection: 'column', alignItems: 'center', marginTop: "40%" }}>
-        <View style={{ width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginBottom: 25 }} />
-        <Text style={styles.textW}>Bine ai venit,</Text>
-        <Text style={styles.textW}>completează-ți profilul</Text>
-        <Text style={styles.textW}>pentru a debloca aplicația.</Text>
-        <View style={{ width: 125, height: 3, backgroundColor: 'rgba(0,149,218,1)', marginTop: 30 }} />
-      </View>
-      <View style={styles.footerContainer}>
-        <MaterialBasicFooter1
-          style={styles.materialBasicFooter1}
-        ></MaterialBasicFooter1>
-      </View>
-    </View>
-  );
+    );
 }
 
 
@@ -442,6 +536,15 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
     bottom: 0
   },
+  icon3: {
+    flex: 0,
+    position: "absolute",
+    color: "rgba(0,149,218,1)",
+    fontSize: 25,
+    marginRight: "10%",
+    marginTop: 50,
+    alignSelf: 'flex-end',
+  },
 });
 
 const stylesItemm = StyleSheet.create({
@@ -479,6 +582,33 @@ const stylesItemm = StyleSheet.create({
     fontSize: 10,
     fontFamily: 'Quicksand',
   }
+});
+
+const styless = StyleSheet.create({
+  container: {
+    backgroundColor: "rgba(0,149,218,1)",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1
+    },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 2,
+    paddingLeft: 16,
+    paddingRight: 16,
+    marginBottom: 10,
+    marginTop: 12
+  },
+  deconnect: {
+    color: "#fff",
+    fontSize: 22,
+    fontFamily: 'Quicksand'
+  },
 });
 
 export default HomeScreen;

@@ -18,9 +18,6 @@ function isUserEqual(googleUser, firebaseUser) {
     return false;
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 export const AuthContext = createContext();
 
@@ -80,7 +77,7 @@ export const AuthProvider = ({ children }) => {
                                 let okToAuth = 1;
                                 let AlreadyExists = 0;
                                 var database = firebase.database();
-                                var userRef = database.ref("/accounts/").on('value', function (snapshot) {
+                                database.ref("accounts").on('value', function (snapshot) {
                                     snapshot.forEach(function (childSnapshot) {
                                         var childData = childSnapshot.val();
                                         if (childData.email === resultt.user.email && childData.type === accType) {
@@ -91,9 +88,7 @@ export const AuthProvider = ({ children }) => {
                                         }
                                     });
                                 });
-                                (async () => {
-                                    await sleep(7500);
-                                })();
+                                
                                 var unsubscribe = firebase.auth().onAuthStateChanged((firebaseUser) => {
                                     unsubscribe();
                                     // Check if we are already signed-in Firebase with the correct user.
@@ -177,7 +172,6 @@ export const AuthProvider = ({ children }) => {
                                             var childData = childSnapshot.val();
                                             if (childData.email === data.email && childData.type != accType) {
                                                 okToAuth = 0;
-                                                Alert.alert('Contul tău este de alt tip!');
                                             }
                                             if (childData.email === data.email && childData.type === accType) {
                                                 AlreadyExists = 1;
@@ -214,6 +208,9 @@ export const AuthProvider = ({ children }) => {
                                             // ...
                                             Alert.alert('Error, try again later!');
                                         });
+                                    } else {
+                                        if(okToAuth===0)
+                                            Alert.alert('Contul tău este de alt tip!');
                                     }
                                 })
                                 .catch((error) => {

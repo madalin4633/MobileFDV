@@ -13,6 +13,9 @@
       "package": "com.awesomeproject",
       "googleServicesFile": "./google-services.json"
     },
+    "ios": {
+        "bundleIdentifier": "com.awesomeproject"
+      },
     "orientation": "portrait",
     "extra": {
       "facebook":{

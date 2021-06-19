@@ -1,5 +1,5 @@
-import React, { Component, useContext, useState } from "react";
-import { StyleSheet, View, Image, Dimensions, TouchableOpacity, Text, Alert, TextInput } from "react-native";
+import React, { Component, useContext, useState, useEffect, useRef } from "react";
+import { StyleSheet, View, Image, Dimensions, FlatList, TouchableOpacity, Text, Alert, TextInput } from "react-native";
 import MaterialBasicFooter1 from "../components/MaterialBasicFooter1";
 import { useFonts } from '@expo-google-fonts/inter';
 import { AuthContext } from '../AuthProvider';
@@ -10,7 +10,7 @@ import { greaterThan } from "react-native-reanimated";
 
 function RewardScreen(props) {
     const navigation = useNavigation();
-    
+
     const { user, setUser } = useContext(AuthContext);
     const [title, setTitle] = useState('');
     const [descr, setDescr] = useState('');
@@ -19,6 +19,38 @@ function RewardScreen(props) {
     const [type, setType] = useState('');
     const [edit, setEdit] = useState('');
     const [rewardCode, setReward] = useState('');
+    const [ngos, setNgos] = useState([]);
+    const [selectedId, setSelectedId] = useState(null);
+    const isMounted = useRef(null);
+
+    const getNGOS = async () => {
+        var database2 = firebase.database();
+        database2.ref('/ngos/').on('value', function (snapshot) {
+            var ngosHere = [];
+            if (snapshot.numChildren() != 0)
+                snapshot.forEach(function (childSnapshot) {
+                    var accepted = childSnapshot.child("/accepted/" + user.uid.toString()).numChildren();
+                    if (accepted != 0) {
+                        let object = {};
+                        object['name'] = childSnapshot.toJSON().name;
+                        object['id'] = childSnapshot.key;
+                        ngosHere.push(object);
+                    }
+                });
+            setNgos(ngosHere);
+        });
+    }
+
+    useEffect(() => {
+        isMounted.current = true;
+
+        getNGOS();
+        return () => {
+            // executed when unmount
+            isMounted.current = false;
+        }
+    }, []);
+
     if (type === '') {
         var database = firebase.database();
         database.ref("/accounts/" + user.uid).on('value', function (snapshot) {
@@ -27,6 +59,29 @@ function RewardScreen(props) {
             setEdit(childData.edited);
         });
     }
+
+    const Item = ({ item, onPress, backgroundColor, textColor }) => (
+        <View style={stylesList.container}>
+            <TouchableOpacity onPress={onPress} style={[stylesList.item, backgroundColor]}>
+                <Text style={[stylesList.title, textColor]}>{item.name}</Text>
+            </TouchableOpacity>
+        </View>
+    );
+
+    const renderItem = ({ item }) => {
+        const backgroundColor = item.id === selectedId ? "#0000CD" : "rgba(0,149,218,1)";
+        const color = 'white';
+
+        return (
+            <Item
+                item={item}
+                onPress={() => setSelectedId(item.id)}
+                backgroundColor={{ backgroundColor }}
+                textColor={{ color }}
+            />
+        );
+    };
+
     if (edit === 0) return (
         <View style={home.container}>
             <Image
@@ -66,10 +121,11 @@ function RewardScreen(props) {
                         Introdu corect datele și distribuie codul.
                     </Text>
                     <View style={styles.titleStack}>
-                        <Text style={styles.title}>Titlu:</Text>
+                        <EntypoIcon name="briefcase" style={styles.icon4}></EntypoIcon>
+                        <Text style={styles.title}>:</Text>
                         <View style={[stylesss.container]}>
                             <TextInput
-                                placeholder={"text obligatoriu"}
+                                placeholder={"titlul activității, obligatoriu"}
                                 style={stylesss.inputStyle}
                                 onChangeText={(text) => setTitle(text)}
                                 value={title}
@@ -77,10 +133,11 @@ function RewardScreen(props) {
                         </View>
                     </View>
                     <View style={styles.titleStack}>
-                        <Text style={styles.title}>Descriere:</Text>
+                        <EntypoIcon name="chat" style={styles.icon4}></EntypoIcon>
+                        <Text style={styles.title}>:</Text>
                         <View style={[stylesss.container]}>
                             <TextInput
-                                placeholder={"text obligatoriu"}
+                                placeholder={"scurtă descriere, obligatorie"}
                                 style={stylesss.inputStyle}
                                 multiline={true}
                                 onChangeText={(text) => setDescr(text)}
@@ -89,10 +146,11 @@ function RewardScreen(props) {
                         </View>
                     </View>
                     <View style={styles.titleStack}>
-                        <Text style={styles.title}>Nr. ore:</Text>
+                        <EntypoIcon name="clock" style={styles.icon4}></EntypoIcon>
+                        <Text style={styles.title}>:</Text>
                         <View style={[stylesss.container]}>
                             <TextInput
-                                placeholder={"număr întreg"}
+                                placeholder={"număr întreg de ore lucrate"}
                                 keyboardType='phone-pad'
                                 style={stylesss.inputStyle}
                                 onChangeText={(text) => setHours(text)}
@@ -101,10 +159,11 @@ function RewardScreen(props) {
                         </View>
                     </View>
                     <View style={styles.titleStack}>
-                        <Text style={styles.title}>Nr. pers.:</Text>
+                        <EntypoIcon name="users" style={styles.icon4}></EntypoIcon>
+                        <Text style={styles.title}>:</Text>
                         <View style={[stylesss.container]}>
                             <TextInput
-                                placeholder={"număr întreg"}
+                                placeholder={"număr de persoane, obligatoriu"}
                                 keyboardType='phone-pad'
                                 style={stylesss.inputStyle}
                                 onChangeText={(text) => setPeople(text)}
@@ -165,13 +224,23 @@ function RewardScreen(props) {
                     <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Primește recompensă</Text>
                 </View>
                 <Text style={styles.loremIpsum1}>
-                    Introdu corect codul de la coordonator.
+                    1. Selectează asociația (gol dacă nu ai niciuna).
                 </Text>
+
+                <View style={{ height: 150, width: Dimensions.get('window').width * 12 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
+                    <FlatList data={ngos} renderItem={renderItem} keyExtractor={(item) => item.id} />
+                </View>
+
+                <Text style={styles.loremIpsum2}>
+                    2. Introdu codul.
+                </Text>
+
                 <View style={styles.titleStackk}>
-                    <Text style={styles.title}>COD:</Text>
+                <EntypoIcon name="medal" style={styles.icon4}></EntypoIcon>
+                    <Text style={styles.title}>:</Text>
                     <View style={[stylesss.container]}>
                         <TextInput
-                            placeholder={"text obligatoriu"}
+                            placeholder={"cod obligatoriu"}
                             style={stylesss.inputStyle}
                             keyboardType='phone-pad'
                             onChangeText={(text) => setTitle(text)}
@@ -184,8 +253,8 @@ function RewardScreen(props) {
                     style={[styless.container, props.style]}>
                     <Text style={styless.deconnect}
                         onPress={() => {
-                            if (title === '') {
-                                Alert.alert("Nu ai introdus niciun cod!");
+                            if (title === '' || selectedId === null) {
+                                Alert.alert("Asociație neselectată sau cod neintrodus!");
                             } else {
                                 var database = firebase.database();
                                 var userRef = database.ref("/rewards/");
@@ -207,7 +276,7 @@ function RewardScreen(props) {
                                         // console.log(actualDate.getMonth());
                                         // console.log(dateToCheck.getFullYear());
                                         // console.log(actualDate.getFullYear());
-                                        if (childData.code === parseInt(title) && !isSameDay) {
+                                        if (childData.code === parseInt(title) && !isSameDay && childData.created_by === selectedId) {
                                             //console.log(childData);
                                             var redeems = childSnapshot.child("redeemed_by").numChildren();
                                             let okA = 1;
@@ -232,15 +301,18 @@ function RewardScreen(props) {
                                 });
                                 if (deja === 1 && once === 0) {
                                     Alert.alert('Cod deja revendicat.');
-                                } else { if (okToGo === 0) Alert.alert('Cod incorect sau expirat.'); }
+                                } else { if (okToGo === 0) Alert.alert('Cod incorect, expirat sau al altei asociații.'); }
                             }
                         }}>
                         Revendică</Text>
                 </TouchableOpacity>
                 <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 20 }}>
                     <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
-                    <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici asociație</Text>
+                    <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici personale</Text>
                 </View>
+                <Text style={styles.loremIpsum1}>
+                    To be implemented.
+                </Text>
                 <View style={styles.footerContainer}>
                     <MaterialBasicFooter1
                         style={styles.materialBasicFooter1}
@@ -250,6 +322,35 @@ function RewardScreen(props) {
         );
     }
 }
+
+const stylesList = StyleSheet.create({
+    container: {
+        flex: 1,
+        flexDirection: "row",
+        marginTop: 0,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    item: {
+        padding: 20,
+        marginVertical: 8,
+        marginHorizontal: 16,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        width: Dimensions.get('window').width * 7.5 / 10
+    },
+    title: {
+        fontSize: 15,
+        fontFamily: 'Quicksand',
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    text: {
+        fontSize: 10,
+        fontFamily: 'Quicksand'
+    }
+});
 
 const home = StyleSheet.create({
     textW: {
@@ -302,14 +403,15 @@ const styles = StyleSheet.create({
         flexDirection: "row",
     },
     titleStackk: {
-        marginTop: "10%",
+        marginTop: "3%",
         flexDirection: "row",
     },
     title: {
         fontFamily: "Quicksand",
         color: "rgba(0,149,218,1)",
         fontSize: 18,
-        width: 105
+        marginLeft: 2,
+        marginRight: 20
     },
     icon3: {
         flex: 0,
@@ -319,6 +421,11 @@ const styles = StyleSheet.create({
         marginRight: "10%",
         marginTop: 50,
         alignSelf: 'flex-end',
+    },
+    icon4: {
+        color: "rgba(0,149,218,1)",
+        fontSize: 25,
+        marginLeft: 10
     },
     image1: {
         width: 100,
@@ -348,6 +455,13 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontSize: 13,
         marginBottom: 10
+    },
+    loremIpsum2: {
+        fontFamily: "Quicksand",
+        color: "rgba(96,93,93,1)",
+        textAlign: "center",
+        fontSize: 13,
+        marginTop: 10
     }
 });
 
@@ -386,11 +500,9 @@ const stylesss = StyleSheet.create({
     },
     inputStyle: {
         color: "#000",
-        paddingRight: 5,
         fontSize: 16,
         lineHeight: 16,
-        paddingBottom: 8,
-        width: 250
+        width: 275
     }
 });
 

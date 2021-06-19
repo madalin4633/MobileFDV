@@ -40,7 +40,7 @@ function ProfileScreen(props) {
     var database2 = firebase.database();
     let urlString = type === 0 ? "/volunteers/" : "/ngos/";
     database2.ref(urlString + user.uid.toString()).on('value', function (snapshot) {
-      if(snapshot.numChildren() != 0)
+      if (snapshot.numChildren() != 0)
         setChild(snapshot.toJSON());
       else setChild({
         name: null,
@@ -55,7 +55,7 @@ function ProfileScreen(props) {
 
   const getNGOs = async () => {
     var database2 = firebase.database();
-    ngosDataObject = await database2.ref('/ngos/').on('value', function (snapshot) {
+    database2.ref('/ngos/').on('value', function (snapshot) {
       var ngosHere = [];
       snapshot.forEach(function (childSnapshot) {
         var inPending = childSnapshot.child("/pending/" + user.uid.toString()).numChildren();
@@ -96,10 +96,10 @@ function ProfileScreen(props) {
       })
       .catch((e) => { }); //ignore the error
 
-      return () => {
-        // executed when unmount
-        isMounted.current = false;
-      }
+    return () => {
+      // executed when unmount
+      isMounted.current = false;
+    }
   }, []);
 
   const onChange = (event, selectedDate) => {
@@ -170,27 +170,29 @@ function ProfileScreen(props) {
       <Item
         item={item}
         onPress={() => {
-          if (edit === 1) {
-          let object = [];
-          let thisObject = {
-            name: item.name,
-            id: item.id,
-            description: item.description
-          }
-          ngos.forEach(element => {
-            if (element.name != thisObject.name)
-              object.push(element);
-          });
-          setNgos(object);
-          var database = firebase.database();
-          database.ref('/ngos/' + item.id + '/pending/' + user.uid).set({
-            user: user.uid,
-            name: childData.name
-          });
-          Alert.alert('Ai aplicat pentru ' + item.name + '.');
-        }
-        else Alert.alert('Completează-ți datele întâi.');
-        }}
+          try {
+            if (edit === 1) {
+              let object = [];
+              let thisObject = {
+                name: item.name,
+                id: item.id,
+                description: item.description
+              }
+              ngos.forEach(element => {
+                if (element.name != thisObject.name)
+                  object.push(element);
+              });
+              setNgos(object);
+              var database = firebase.database();
+              database.ref('/ngos/' + item.id + '/pending/' + user.uid).set({
+                user: user.uid,
+                name: childData.name
+              });
+              Alert.alert('Ai aplicat pentru ' + item.name + '.');
+            }
+            else Alert.alert('Completează-ți datele întâi.');
+          } catch(e){}
+  }}
         backgroundColor={{ backgroundColor }}
         textColor={{ color }}
       />
@@ -219,9 +221,9 @@ function ProfileScreen(props) {
             </View>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
-          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Profil asociație</Text>
-        </View>
+            <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
+            <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Profil asociație</Text>
+          </View>
           <View style={styles.titleStack}>
             <EntypoIcon name="users" style={styles.icon3}></EntypoIcon>
             <Text style={styles.title}>:</Text>

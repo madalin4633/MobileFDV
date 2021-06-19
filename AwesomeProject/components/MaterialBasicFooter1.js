@@ -2,13 +2,22 @@ import React, { Component, useState } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from '@react-navigation/native';
-import { useFonts } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
 import firebase from '../database/firebaseDb';
 import LoadingScreen from "../screens/LoadingScreen";
 
 function MaterialBasicFooter1(props) {
 
   const navigationn = useNavigation();
+
+  
+let [fontsLoaded] = useFonts({
+  Quicksand :  require('../assets/fonts/quicksand-700.ttf'),
+});
+
+if (!fontsLoaded) {
+  return <LoadingScreen/>;
+}
 
   return (
     <View style={[styles.container, props.style]}>

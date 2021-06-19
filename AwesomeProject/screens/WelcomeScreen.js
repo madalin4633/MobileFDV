@@ -3,7 +3,7 @@ import { StyleSheet, View, Image, Text, Dimensions, Platform, PixelRatio } from 
 import Icon from "react-native-vector-icons/Ionicons";
 import CupertinoButtonInfo from "../components/CupertinoButtonInfo";
 import CupertinoButtonInfo1 from "../components/CupertinoButtonInfo1";
-import { useFonts } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
 
 const {
   width: SCREEN_WIDTH,
