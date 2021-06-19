@@ -201,7 +201,7 @@ function RewardScreen(props) {
                     {rewardCode === '' ? null : <Text style={reward.rewardCode}>{rewardCode}</Text>}
                     <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 20 }}>
                         <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
-                        <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici personale</Text>
+                        <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statisticile membrilor</Text>
                     </View>
                     <View style={styles.footerContainer}>
                         <MaterialBasicFooter1

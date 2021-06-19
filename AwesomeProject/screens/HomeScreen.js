@@ -41,6 +41,7 @@ function HomeScreen(props) {
       .then(response => response.json())
       .then(data => setArticles(data.articles));
   }
+  
   if (articles === '')
     getArticles();
 
@@ -138,9 +139,18 @@ function HomeScreen(props) {
       setRefused(volunteersHere);
     });
   }
+  if (type === '') {
+    var database = firebase.database();
+    database.ref("/accounts/" + user.uid).on('value', function (snapshot) {
+      var childData = snapshot.val();
+      setType(childData.type);
+      setEdit(childData.edited);
+    });
+  }
   useEffect(() => {
     isMounted.current = true;
-    getXP();
+    if(type===0)
+      getXP();
     getVolunteersPending();
 
 
@@ -150,14 +160,6 @@ function HomeScreen(props) {
     }
   }, []);
 
-  if (type === '') {
-    var database = firebase.database();
-    database.ref("/accounts/" + user.uid).on('value', function (snapshot) {
-      var childData = snapshot.val();
-      setType(childData.type);
-      setEdit(childData.edited);
-    });
-  }
 
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
     <View style={stylesList.container}>
