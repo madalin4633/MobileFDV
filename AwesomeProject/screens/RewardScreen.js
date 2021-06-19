@@ -240,7 +240,7 @@ function RewardScreen(props) {
                     <Text style={styles.title}>:</Text>
                     <View style={[stylesss.container]}>
                         <TextInput
-                            placeholder={"cod obligatoriu"}
+                            placeholder={"combinație numerică obligatorie"}
                             style={stylesss.inputStyle}
                             keyboardType='phone-pad'
                             onChangeText={(text) => setTitle(text)}

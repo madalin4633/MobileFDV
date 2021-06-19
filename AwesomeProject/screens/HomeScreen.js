@@ -140,8 +140,9 @@ function HomeScreen(props) {
   }
   useEffect(() => {
     isMounted.current = true;
-    getVolunteersPending();
     getXP();
+    getVolunteersPending();
+
 
     return () => {
       // executed when unmount
@@ -278,7 +279,7 @@ function HomeScreen(props) {
     );
   };
 
-  if (!loaded)
+  if (!loaded || level==={})
     return <LoadingScreen />
   else
     if (edit === 1) {
@@ -300,14 +301,11 @@ function HomeScreen(props) {
             </Text>
             <View style={{ height: 230 }}>
 
-              <Container>
-                <CircularProgress progress={level['percentage']} size={175} nivel={level['level']} />
-              </Container>
-
+              {level==={} ? null : <Container><CircularProgress progress={level['percentage']} size={175} nivel={level['level']} /></Container>}
               <TouchableOpacity
                 style={[styless.container, props.style]}>
                 <Text style={styless.deconnect}
-                  onPress={() => { }}>
+                  onPress={() => {navigation.navigate('BadgesScreen', {stats: level})}}>
                   Vezi insignele tale</Text>
               </TouchableOpacity>
 
