@@ -1,5 +1,5 @@
 import React, { Component, useContext, useState, useEffect, useRef } from "react";
-import { StyleSheet, View, Image, Dimensions, TouchableOpacity, Linking, FlatList, Text, Alert } from "react-native";
+import { StyleSheet,RefreshControl, ScrollView, View, Image, Dimensions, TouchableOpacity, Linking, FlatList, Text, Alert } from "react-native";
 import MaterialBasicFooter1 from "../components/MaterialBasicFooter1";
 import { useFonts } from 'expo-font';
 import { AuthContext } from '../AuthProvider';
@@ -9,6 +9,10 @@ import LoadingScreen from './LoadingScreen';
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import styled from 'styled-components/native';
 import CircularProgress from '../components/CircularProgress';
+
+const wait = (timeout) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
 
 const Container = styled.View`
   flex: 1;
@@ -30,6 +34,8 @@ function HomeScreen(props) {
   const [refused, setRefused] = useState([]);
   const [level, setLevel] = useState({});
 
+  const [refreshing, setRefreshing] = React.useState(false);
+
   const isMounted = useRef(null);
 
   const [loaded] = useFonts({
@@ -41,7 +47,7 @@ function HomeScreen(props) {
       .then(response => response.json())
       .then(data => setArticles(data.articles));
   }
-  
+
   if (articles === '')
     getArticles();
 
@@ -65,11 +71,11 @@ function HomeScreen(props) {
     let level = {};
     //in cate asociatii este
     var ngosNo = 0;
-    database2.ref('/ngos/').on('value', function(snapshot){
-      snapshot.forEach(function (childSnapshot){
+    database2.ref('/ngos/').on('value', function (snapshot) {
+      snapshot.forEach(function (childSnapshot) {
         ngosNo += childSnapshot.child("accepted/" + user.uid).numChildren();
       });
-      level['ngos_number']=ngosNo;
+      level['ngos_number'] = ngosNo;
     });
 
     //vechimea in zile
@@ -98,12 +104,12 @@ function HomeScreen(props) {
       level['hours'] = hours;
     });
 
-    let player_xp = (ngosNo + rewards + hours) * 16 + level['days']*0.5;
-    
+    let player_xp = (ngosNo + rewards + hours) * 16 + level['days'] * 0.5;
+
     for (let step = 1; step < 12; step++) {
-      if(player_xp<4**step){
-        level['level']=step;
-        level['percentage'] = Math.round(100*(player_xp-4**(step-1))/(4**step-4**(step-1)));
+      if (player_xp < 4 ** step) {
+        level['level'] = step;
+        level['percentage'] = Math.round(100 * (player_xp - 4 ** (step - 1)) / (4 ** step - 4 ** (step - 1)));
         break;
       }
     }
@@ -149,7 +155,7 @@ function HomeScreen(props) {
   }
   useEffect(() => {
     isMounted.current = true;
-    if(type===0)
+    if (type === 0)
       getXP();
     getVolunteersPending();
 
@@ -281,14 +287,22 @@ function HomeScreen(props) {
     );
   };
 
-  if (!loaded || level==={})
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    getXP();
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
+
+  if (!loaded) {
     return <LoadingScreen />
+  }
   else
     if (edit === 1) {
       if (type === 0)
         return (
           <View style={styles.container}>
-            <EntypoIcon name="info-with-circle" style={styles.icon3}></EntypoIcon>
+            <EntypoIcon name="info-with-circle" style={styles.icon3}
+            onPress={ () => navigation.navigate('HomeInfo', { type: type })}></EntypoIcon>
             <Image
               source={require("../assets/images/fabrica_de_voluntari.png")}
               resizeMode="contain"
@@ -301,17 +315,22 @@ function HomeScreen(props) {
             <Text style={styles.loremIpsum1}>
               În baza activității din toate organizațiile.
             </Text>
-            <View style={{ height: 230 }}>
 
-              {level==={} ? null : <Container><CircularProgress progress={level['percentage']} size={175} nivel={level['level']} /></Container>}
+            <ScrollView
+              contentContainerStyle={{ height: 245 }} refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                />
+              }>
+              <Container><CircularProgress progress={level['percentage']} size={175} nivel={level['level']} /></Container>
               <TouchableOpacity
                 style={[styless.container, props.style]}>
                 <Text style={styless.deconnect}
-                  onPress={() => {navigation.navigate('BadgesScreen', {stats: level})}}>
+                  onPress={() => { navigation.navigate('BadgesScreen', { stats: level }) }}>
                   Vezi insignele tale</Text>
               </TouchableOpacity>
-
-            </View>
+            </ScrollView>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
               <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
@@ -334,7 +353,8 @@ function HomeScreen(props) {
         );
       else {
         return (<View style={styles.container}>
-          <EntypoIcon name="info-with-circle" style={styles.icon3}></EntypoIcon>
+          <EntypoIcon name="info-with-circle" style={styles.icon3} 
+          onPress={ () => navigation.navigate('HomeInfo', { type: type })}/>
           <Image
             source={require("../assets/images/fabrica_de_voluntari.png")}
             resizeMode="contain"

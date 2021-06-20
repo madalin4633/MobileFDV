@@ -74,7 +74,7 @@ export default function CircularProgress({progress = 0, size = 50, nivel}, props
         size={size}
       />
       <CoverIndicator size={size} />
-      <Text style={{transform: [{ rotate: '+45deg'}], color: "black", fontSize: 19, fontFamily: 'Quicksand'}}>AI LEVEL {nivel}</Text>
+      <Text style={{transform: [{ rotate: '+45deg'}], color: "black", fontSize: 19, fontFamily: 'Quicksand'}}>AI NIVEL {nivel===undefined ? '...' : nivel}</Text>
       
       <Indicator
         size={size}

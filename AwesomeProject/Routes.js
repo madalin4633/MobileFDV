@@ -13,6 +13,8 @@ import ProfileScreen from './screens/ProfileScreen';
 import RewardScreen from './screens/RewardScreen';
 import TasksScreen from './screens/TasksScreen';
 import BadgesScreen from './screens/BadgesScreen';
+import HomeInfo from './screens/HomeInfo';
+import TasksInfo from './screens/TasksInfo';
 
 
 const Stack = createStackNavigator();
@@ -43,6 +45,8 @@ const Routes = () => {
           <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
           <Stack.Screen name="RewardScreen" component={RewardScreen} />
           <Stack.Screen name="BadgesScreen" component={BadgesScreen} />
+          <Stack.Screen name="HomeInfo" component={HomeInfo} />
+          <Stack.Screen name="TasksInfo" component={TasksInfo} />
           </>
           ) : (
             <>

@@ -11,11 +11,11 @@ import Constants from 'expo-constants';
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-function compare( a, b ) {
-  if ( a.at_date > b.at_date ){
+function compare(a, b) {
+  if (a.at_date > b.at_date) {
     return -1;
   }
-  if ( a.at_date < b.at_date ){
+  if (a.at_date < b.at_date) {
     return 1;
   }
   return 0;
@@ -36,14 +36,34 @@ function TasksScreen(props) {
   const [show, setShow] = useState(false);
   const [announces, setAnnounces] = useState([]);
   const isMounted = useRef(null);
+  const [ngos, setNgos] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
 
-  const getAnnounces = async () => {
+  const getNGOS = async () => {
+    var database2 = firebase.database();
+    database2.ref('/ngos/').on('value', function (snapshot) {
+      var ngosHere = [];
+      if (snapshot.numChildren() != 0)
+        snapshot.forEach(function (childSnapshot) {
+          var accepted = childSnapshot.child("/accepted/" + user.uid.toString()).numChildren();
+          if (accepted != 0) {
+            let object = {};
+            object['name'] = childSnapshot.toJSON().name;
+            object['id'] = childSnapshot.key;
+            ngosHere.push(object);
+          }
+        });
+      setNgos(ngosHere);
+    });
+  }
+
+  const getAnnounces = async (ngoUID) => {
     var database2 = firebase.database();
     database2.ref('/announcements/').orderByChild('at_date').on('value', function (snapshot) {
       var announces = [];
       snapshot.forEach(function (childSnapshot) {
         let object = {};
-        if (childSnapshot.toJSON().created_by === user.uid) {
+        if (childSnapshot.toJSON().created_by === ngoUID) {
           object['title'] = childSnapshot.toJSON().title;
           object['id'] = childSnapshot.key;
           object['description'] = childSnapshot.toJSON().description;
@@ -63,7 +83,7 @@ function TasksScreen(props) {
           if (minutes.length < 2)
             minutes = '0' + minutes;
 
-          object['for_date'] = day+'/'+month+'/'+year;
+          object['for_date'] = day + '/' + month + '/' + year;
           object['hour'] = hours + ':' + minutes;
           object['at_date'] = childSnapshot.toJSON().created_at;
           announces.push(object);
@@ -76,7 +96,9 @@ function TasksScreen(props) {
 
   useEffect(() => {
     isMounted.current = true;
-    getAnnounces();
+    if (selectedId != null)
+      getAnnounces();
+    getNGOS();
     return () => {
       // executed when unmount
       isMounted.current = false;
@@ -116,6 +138,36 @@ function TasksScreen(props) {
     });
   }
 
+
+
+  const Itemm = ({ item, onPress, backgroundColor, textColor }) => (
+    <View style={stylesList.container}>
+      <TouchableOpacity onPress={onPress} style={[{ padding: 20, marginVertical: 8, marginHorizontal: 16, width: Dimensions.get('window').width * 8 / 10, borderRadius: 10, justifyContent: "center", alignItems: "center" }, backgroundColor]}>
+        <Text style={[{
+          fontSize: 15,
+          fontFamily: 'Quicksand',
+          justifyContent: "center",
+          alignItems: "center",
+        }, textColor]}>{item.name}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderItem2 = ({ item }) => {
+    const backgroundColor = item.id === selectedId ? "#0000CD" : "rgba(0,149,218,1)";
+    const color = 'white';
+
+    return (
+      <Itemm
+        item={item}
+        onPress={() => { setSelectedId(item.id); getAnnounces(selectedId); }}
+        backgroundColor={{ backgroundColor }}
+        textColor={{ color }}
+      />
+    );
+  };
+
+
   const Item = ({ item, backgroundColor, textColor }) => (
     <View style={stylesList.container}>
       <TouchableOpacity style={[stylesList.item, backgroundColor]}>
@@ -142,7 +194,8 @@ function TasksScreen(props) {
     if (type === 1)
       return (
         <View style={styles.container}>
-          <EntypoIcon name="info-with-circle" style={styles.icon3}></EntypoIcon>
+          <EntypoIcon name="info-with-circle" style={styles.icon3}
+            onPress={() => navigation.navigate('TasksInfo', { type: type })}></EntypoIcon>
           <Image
             source={require("../assets/images/fabrica_de_voluntari.png")}
             resizeMode="contain"
@@ -276,7 +329,58 @@ function TasksScreen(props) {
           </View>
         </View>
       );
-    else return null;
+    else return (
+
+      <View style={styles.container}>
+        <EntypoIcon name="info-with-circle" style={styles.icon3}
+          onPress={() => navigation.navigate('TasksInfo', { type: type })}></EntypoIcon>
+        <Image
+          source={require("../assets/images/fabrica_de_voluntari.png")}
+          resizeMode="contain"
+          style={styles.image1}
+        ></Image>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Anunțuri anterioare</Text>
+        </View>
+
+        <Text style={styles.loremIpsum1}>
+          1. Selectează asociația (gol dacă nu ai niciuna).
+        </Text>
+
+        <View style={{ height: 150, width: Dimensions.get('window').width * 13.5 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
+          <FlatList data={ngos} renderItem={renderItem2} keyExtractor={(item) => item.id} />
+        </View>
+
+        <Text style={styles.loremIpsum1}>
+          2. Vezi anunțurile (cele mai noi primele):
+        </Text>
+
+        <View style={{ marginBottom: 10, height: 150, width: Dimensions.get('window').width * 13.5 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
+          <FlatList
+            data={announces}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+          />
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+          <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Generează adeverință</Text>
+        </View>
+
+        <Text style={styles.loremIpsum1}>
+          Atașează toate recompensele din această perioadă:
+        </Text>
+
+        <View style={styles.footerContainer}>
+          <MaterialBasicFooter1
+            style={styles.materialBasicFooter1}
+          ></MaterialBasicFooter1>
+        </View>
+      </View>
+    );
   }
   else return (
     <View style={styles.container}>
@@ -440,6 +544,8 @@ const styles = StyleSheet.create({
     color: "rgba(96,93,93,1)",
     textAlign: "center",
     fontSize: 13,
+    marginBottom: 5,
+    marginTop: 5
   },
   titleStack: {
     marginTop: "3.5%",
