@@ -102,8 +102,8 @@ function TasksScreen(props) {
 
   useEffect(() => {
     isMounted.current = true;
-    if (selectedId != null)
-      getAnnounces();
+    if(type===1)
+      getAnnounces(user.uid);
     getNGOS();
     return () => {
       // executed when unmount
@@ -347,7 +347,7 @@ function TasksScreen(props) {
           ></Image>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-            <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+            <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
             <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Creează un anunț</Text>
           </View>
 
@@ -457,7 +457,7 @@ function TasksScreen(props) {
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-            <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+            <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
             <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Anunțuri anterioare</Text>
           </View>
 
@@ -486,7 +486,7 @@ function TasksScreen(props) {
         ></Image>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
           <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Anunțuri anterioare</Text>
         </View>
 
@@ -511,7 +511,7 @@ function TasksScreen(props) {
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+          <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
           <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Generează adeverință</Text>
         </View>
 
@@ -762,7 +762,7 @@ const styles = StyleSheet.create({
   image1: {
     width: 100,
     height: 100,
-    marginTop: 48,
+    marginTop: 30,
     alignSelf: "center"
   },
   footerContainer: {

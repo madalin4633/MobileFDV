@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         color: "#121212",
         width: "100%",
         textAlign: "center",
-        fontSize: 20,
+        fontSize: 18.5,
     },
 });
 

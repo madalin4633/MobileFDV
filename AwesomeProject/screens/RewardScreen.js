@@ -347,6 +347,74 @@ function RewardScreen(props) {
                         <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
                         <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statisticile membrilor</Text>
                     </View>
+
+                    <Text style={styles.loremIpsum1}>
+                    Selectează intervalul de timp:
+                </Text>
+
+                <View style={styles.cupertinoButtonInfoRow}>
+                    <TouchableOpacity
+                        style={[stylesDate.container, props.style]}
+                        onPress={showDatepicker}>
+                        <Text style={{ color: "#fff", fontSize: 17, fontFamily: 'Quicksand' }}>
+                            început</Text>
+                    </TouchableOpacity>
+                    <View style={stylesDate.space} />
+                    <TouchableOpacity
+                        style={[stylesDate.container, props.style]}
+                        onPress={showDatepicker2}>
+                        <Text style={{
+                            color: "#fff",
+                            fontSize: 17,
+                            fontFamily: 'Quicksand'
+                        }}>
+                            sfârșit</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity
+                    style={[stylesDate.container, { marginTop: 13 }]}
+                    onPress={() => {
+                        if (date === date2)
+                            Alert.alert("Datele trebuie să fie diferite!")
+                        else {
+                            getStats(user.uid); 
+                        }
+                    }}>
+                    <Text style={{
+                        color: "#fff",
+                        fontSize: 20,
+                        fontFamily: 'Quicksand'
+                    }}>
+                        afișează statistici</Text>
+                </TouchableOpacity>
+
+                {show && ( // showDatepicker
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode={mode}
+                        is24Hour={true}
+                        display="default"
+                        onChange={onChange}
+                    />
+                )}
+
+
+                {show2 && ( // showDatepicker
+                    <DateTimePicker
+                        testID="dateTimePicker2"
+                        value={date2}
+                        mode={mode2}
+                        is24Hour={true}
+                        display="default"
+                        onChange={onChange2}
+                    />
+                )}
+                <View style={{ marginTop: 10, height: 120, width: Dimensions.get('window').width * 12 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
+                    <FlatList data={volunteers} renderItem={renderItem2} keyExtractor={(item) => item.id} />
+                </View>
+
                     <View style={styles.footerContainer}>
                         <MaterialBasicFooter1
                             style={styles.materialBasicFooter1}
@@ -364,7 +432,7 @@ function RewardScreen(props) {
                     resizeMode="contain"
                     style={styles.image1}
                 ></Image>
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 5 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 2 }}>
                     <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
                     <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Primește recompensă</Text>
                 </View>
@@ -372,7 +440,7 @@ function RewardScreen(props) {
                     1. Selectează asociația (gol dacă nu ai niciuna).
                 </Text>
 
-                <View style={{ height: 135, width: Dimensions.get('window').width * 12 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
+                <View style={{ height: 115, width: Dimensions.get('window').width * 12 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
                     <FlatList data={ngos} renderItem={renderItem} keyExtractor={(item) => item.id} />
                 </View>
 
@@ -518,7 +586,7 @@ function RewardScreen(props) {
                         onChange={onChange2}
                     />
                 )}
-                <View style={{ marginTop: 10, height: 140, width: Dimensions.get('window').width * 12 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
+                <View style={{ marginTop: 10, height: 120, width: Dimensions.get('window').width * 12 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
                     <FlatList data={volunteers} renderItem={renderItem2} keyExtractor={(item) => item.id} />
                 </View>
 
@@ -674,7 +742,7 @@ const styles = StyleSheet.create({
     image1: {
         width: 100,
         height: 100,
-        marginTop: 48,
+        marginTop: 30,
         alignSelf: "center"
     },
     materialBasicFooter1: {

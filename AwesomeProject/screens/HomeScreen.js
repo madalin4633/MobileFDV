@@ -309,7 +309,7 @@ function HomeScreen(props) {
               style={styles.image1}
             ></Image>
             <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-              <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+              <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
               <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Nivelul tău</Text>
             </View>
             <Text style={styles.loremIpsum1}>
@@ -333,7 +333,7 @@ function HomeScreen(props) {
             </ScrollView>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-              <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+              <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
               <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Știri despre "voluntar"</Text>
             </View>
             <Text style={styles.loremIpsum1}>
@@ -362,7 +362,7 @@ function HomeScreen(props) {
           ></Image>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-            <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+            <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
             <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Voluntarii tăi</Text>
           </View>
 
@@ -438,7 +438,7 @@ function HomeScreen(props) {
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
-            <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'grey', bottom: 0, marginTop: 'auto' }} />
+            <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
             <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Știri despre "voluntar"</Text>
           </View>
           <Text style={styles.loremIpsum1}>
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
   image1: {
     width: 100,
     height: 100,
-    marginTop: 48,
+    marginTop: 33,
     alignSelf: "center"
   },
   materialBasicFooter1: {

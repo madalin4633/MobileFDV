@@ -191,8 +191,8 @@ function ProfileScreen(props) {
               Alert.alert('Ai aplicat pentru ' + item.name + '.');
             }
             else Alert.alert('Completează-ți datele întâi.');
-          } catch(e){}
-  }}
+          } catch (e) { }
+        }}
         backgroundColor={{ backgroundColor }}
         textColor={{ color }}
       />
@@ -202,7 +202,8 @@ function ProfileScreen(props) {
   if (type === 1)
     return (
       <View style={styles.container}>
-        <EntypoIcon name="info-with-circle" style={styles.icon4}></EntypoIcon>
+        <EntypoIcon name="info-with-circle" style={styles.icon4}
+          onPress={() => navigation.navigate('ProfileInfo', { type: type })} />
         <KeyboardAvoidingView style={{ margin: 15 }} behavior="padding">
           <View style={{ alignItems: 'center', marginBottom: "8%" }}>
             <View style={{ height: 100, width: 100, borderRadius: 15, marginTop: "2%", justifyContent: 'center', alignItems: 'center' }}>
@@ -220,7 +221,7 @@ function ProfileScreen(props) {
               </TouchableOpacity>
             </View>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 10 }}>
             <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
             <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Profil asociație</Text>
           </View>
@@ -400,7 +401,8 @@ function ProfileScreen(props) {
 
   else return (
     <View style={styles.container}>
-      <EntypoIcon name="info-with-circle" style={styles.icon4}></EntypoIcon>
+      <EntypoIcon name="info-with-circle" style={styles.icon4}
+        onPress={() => navigation.navigate('ProfileInfo', { type: type })}></EntypoIcon>
       <KeyboardAvoidingView style={{ margin: 10 }} behavior="padding">
         <View style={{ alignItems: 'center', marginBottom: "10%" }}>
           <View style={{ height: 100, width: 100, borderRadius: 15, marginTop: "5%", justifyContent: 'center', alignItems: 'center' }}>
