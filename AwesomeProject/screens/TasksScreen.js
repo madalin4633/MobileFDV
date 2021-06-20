@@ -34,6 +34,9 @@ function TasksScreen(props) {
   const [date, setDate] = useState(dateVal);
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
+  const [mode2, setMode2] = useState('date');
+  const [show2, setShow2] = useState(false);
+  const [date2, setDate2] = useState(dateVal);
   const [announces, setAnnounces] = useState([]);
   const isMounted = useRef(null);
   const [ngos, setNgos] = useState([]);
@@ -116,13 +119,31 @@ function TasksScreen(props) {
     }
   };
 
+  const onChange2 = (event, selectedDate) => {
+    setShow2(Platform.OS === 'ios');
+    if (event.type == "set") {          //ok button
+      let dateObj = new Date(selectedDate);
+      setDate2(dateObj);
+    } else {
+      //cancel button
+    }
+  };
+
   const showMode = (currentMode) => {
     setShow(true);
     setMode(currentMode);
   };
+  const showMode2 = (currentMode) => {
+    setShow2(true);
+    setMode2(currentMode);
+  };
 
   const showDatepicker = () => {
     showMode('date');
+  };
+
+  const showDatepicker2 = () => {
+    showMode2('date');
   };
 
   const showTimepicker = () => {
@@ -289,6 +310,7 @@ function TasksScreen(props) {
             />
           )}
 
+
           <TouchableOpacity
             style={[styless.container, props.style]}>
             <Text style={styless.deconnect}
@@ -374,6 +396,59 @@ function TasksScreen(props) {
           Atașează toate recompensele din această perioadă:
         </Text>
 
+        <View style={styles.cupertinoButtonInfoRow}>
+          <TouchableOpacity
+            style={[stylesDate.container, props.style]}
+            onPress={showDatepicker}>
+            <Text style={{ color: "#fff", fontSize: 17, fontFamily: 'Quicksand' }}>
+              început</Text>
+          </TouchableOpacity>
+          <View style={stylesDate.space} />
+          <TouchableOpacity
+            style={[stylesDate.container, props.style]}
+            onPress={showDatepicker2}>
+            <Text style={{
+              color: "#fff",
+              fontSize: 17,
+              fontFamily: 'Quicksand'
+            }}>
+              final</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={[stylesDate.container, { marginTop: 20 }]}>
+          <Text style={{
+            color: "#fff",
+            fontSize: 20,
+            fontFamily: 'Quicksand'
+          }}>
+            Salvează PDF</Text>
+        </TouchableOpacity>
+
+        {show && ( // showDatepicker
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode={mode}
+            is24Hour={true}
+            display="default"
+            onChange={onChange}
+          />
+        )}
+
+
+        {show2 && ( // showDatepicker
+          <DateTimePicker
+            testID="dateTimePicker2"
+            value={date2}
+            mode={mode2}
+            is24Hour={true}
+            display="default"
+            onChange={onChange2}
+          />
+        )}
+
         <View style={styles.footerContainer}>
           <MaterialBasicFooter1
             style={styles.materialBasicFooter1}
@@ -458,6 +533,35 @@ const dateS = StyleSheet.create({
   }
 });
 
+const stylesDate = StyleSheet.create({
+  container: {
+    backgroundColor: "rgba(0,149,218,1)",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1
+    },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 2,
+    minWidth: 88,
+    paddingLeft: 16,
+    paddingRight: 16
+  },
+  space: {
+    width: 20
+  },
+  deconnect: {
+    color: "#fff",
+    fontSize: 22,
+    fontFamily: 'Quicksand'
+  },
+});
+
 
 const styless = StyleSheet.create({
   container: {
@@ -515,6 +619,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center"
+  },
+  cupertinoButtonInfoRow: {
+    height: 30,
+    flexDirection: "row",
   },
   materialBasicFooter1: {
     height: 56,
