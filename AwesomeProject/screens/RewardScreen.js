@@ -7,6 +7,17 @@ import { useNavigation } from '@react-navigation/native';
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import firebase from '../database/firebaseDb';
 import { greaterThan } from "react-native-reanimated";
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+function compare(a, b) {
+    if (a.hours > b.hours) {
+      return -1;
+    }
+    if (a.hours < b.hours) {
+      return 1;
+    }
+    return 0;
+  }
 
 function RewardScreen(props) {
     const navigation = useNavigation();
@@ -20,8 +31,16 @@ function RewardScreen(props) {
     const [edit, setEdit] = useState('');
     const [rewardCode, setReward] = useState('');
     const [ngos, setNgos] = useState([]);
+    const [volunteers, setVolunteers] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
     const isMounted = useRef(null);
+    var dateVal = new Date();
+    const [date, setDate] = useState(dateVal);
+    const [mode, setMode] = useState('date');
+    const [show, setShow] = useState(false);
+    const [mode2, setMode2] = useState('date');
+    const [show2, setShow2] = useState(false);
+    const [date2, setDate2] = useState(dateVal);
 
     const getNGOS = async () => {
         var database2 = firebase.database();
@@ -75,12 +94,136 @@ function RewardScreen(props) {
         return (
             <Item
                 item={item}
-                onPress={() => setSelectedId(item.id)}
+                onPress={() => { setSelectedId(item.id) }}
                 backgroundColor={{ backgroundColor }}
                 textColor={{ color }}
             />
         );
     };
+
+
+    const Itemm = ({ item, onPress, backgroundColor, textColor }) => (
+        <View style={stylesList.container}>
+            <TouchableOpacity onPress={onPress} style={[stylesList.item, backgroundColor]}>
+                <Text style={[stylesList.title, textColor]}>{item.name}:</Text>
+                <Text style={[stylesList.text, textColor]}>Nr. task-uri: {item.tasks} | nr. ore: {item.hours}</Text>
+            </TouchableOpacity>
+        </View>
+    );
+
+    const renderItem2 = ({ item }) => {
+        const backgroundColor = "rgba(0,149,218,1)";
+        const color = 'white';
+
+        return (
+            <Itemm
+                item={item}
+                backgroundColor={{ backgroundColor }}
+                textColor={{ color }}
+            />
+        );
+    };
+
+
+
+
+    const onChange = (event, selectedDate) => {
+        setShow(Platform.OS === 'ios');
+        if (event.type == "set") {          //ok button
+            let dateObj = new Date(selectedDate);
+            setDate(dateObj);
+        } else {
+            //cancel button
+        }
+    };
+
+    const onChange2 = (event, selectedDate) => {
+        setShow2(Platform.OS === 'ios');
+        if (event.type == "set") {          //ok button
+            let dateObj = new Date(selectedDate);
+            setDate2(dateObj);
+        } else {
+            //cancel button
+        }
+    };
+
+    const showMode = (currentMode) => {
+        setShow(true);
+        setMode(currentMode);
+    };
+    const showMode2 = (currentMode) => {
+        setShow2(true);
+        setMode2(currentMode);
+    };
+
+    const showDatepicker = () => {
+        showMode('date');
+    };
+
+    const showDatepicker2 = () => {
+        showMode2('date');
+    };
+
+
+    const getStats = async (ngoID) => {
+        var database2 = firebase.database();
+        let NGOstats = {};
+
+        //luam voluntarii care sunt in respectiva asociatie
+        database2.ref('/ngos/' + ngoID + "/accepted/").on('value', function (snapshot) {
+            snapshot.forEach(function (childSnapshot) {
+                NGOstats[childSnapshot.key] = {};
+                let object = {};
+                let id = childSnapshot.key;
+                object[id] = {};
+                object[id]['name'] = childSnapshot.val().name;
+                object[id]['tasks'] = 0;
+                object[id]['hours'] = 0;
+                NGOstats[id] = object[id];
+            });
+        });
+        // console.log(NGOstats);
+        //listam statisticile tuturor voluntarilor din respectiva asociatie selectata
+        var start = new Date(date).getTime();
+        var end = new Date(date2).getTime();
+
+        database2.ref('/rewards/').on('value', function (snapshot) {
+            snapshot.forEach(function (childSnapshot) {
+                var redeems = childSnapshot.child("redeemed_by");
+                var when = new Date(childSnapshot.val().created_at).getTime();
+                redeems.forEach(function (grandChild) {
+                    // console.log(childSnapshot.val().created_by);
+                    // console.log(ngoID)
+                    // console.log('atceva');
+                    if (start <= when && when < end && childSnapshot.val().created_by === ngoID) {
+                        let id = grandChild.val().user;
+                        // console.log(' a intrat?')
+                        // console.log(id);
+                        // console.log(id);
+                        // console.log(NGOstats[id]);
+                        if (NGOstats[id] != undefined) {
+                            NGOstats[id]['tasks'] = NGOstats[id]['tasks'] + 1;
+                            NGOstats[id]['hours'] = NGOstats[id]['hours'] + childSnapshot.val().hours;
+                        }
+                    }
+                });
+            });
+        });
+
+        var NGOstatsARRAY = [];
+        for (var key in NGOstats) {
+            if (NGOstats.hasOwnProperty(key)) {
+                let object = {};
+                object['id']=key;
+                object['hours']=NGOstats[key]['hours'];
+                object['name']=NGOstats[key]['name'];
+                object['tasks']=NGOstats[key]['tasks'];
+                NGOstatsARRAY.push(object);
+            }
+        }
+        NGOstatsARRAY.sort(compare);
+        setVolunteers(NGOstatsARRAY);
+    }
 
     if (edit === 0) return (
         <View style={home.container}>
@@ -107,7 +250,8 @@ function RewardScreen(props) {
         if (type === 1)
             return (
                 <View style={styles.container}>
-                    <EntypoIcon name="info-with-circle" style={styles.icon3}></EntypoIcon>
+                    <EntypoIcon name="info-with-circle" style={styles.icon3}
+                    onPress={ () => navigation.navigate('RewardsInfo', { type: type })}></EntypoIcon>
                     <Image
                         source={require("../assets/images/fabrica_de_voluntari.png")}
                         resizeMode="contain"
@@ -213,13 +357,14 @@ function RewardScreen(props) {
             );
         else return (
             <View style={styles.container}>
-                <EntypoIcon name="info-with-circle" style={styles.icon3}></EntypoIcon>
+                <EntypoIcon name="info-with-circle" style={styles.icon3}
+                onPress={ () => navigation.navigate('RewardsInfo', { type: type })}></EntypoIcon>
                 <Image
                     source={require("../assets/images/fabrica_de_voluntari.png")}
                     resizeMode="contain"
                     style={styles.image1}
                 ></Image>
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 15 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 5 }}>
                     <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
                     <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Primește recompensă</Text>
                 </View>
@@ -227,7 +372,7 @@ function RewardScreen(props) {
                     1. Selectează asociația (gol dacă nu ai niciuna).
                 </Text>
 
-                <View style={{ height: 150, width: Dimensions.get('window').width * 12 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
+                <View style={{ height: 135, width: Dimensions.get('window').width * 12 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
                     <FlatList data={ngos} renderItem={renderItem} keyExtractor={(item) => item.id} />
                 </View>
 
@@ -236,7 +381,7 @@ function RewardScreen(props) {
                 </Text>
 
                 <View style={styles.titleStackk}>
-                <EntypoIcon name="medal" style={styles.icon4}></EntypoIcon>
+                    <EntypoIcon name="medal" style={styles.icon4}></EntypoIcon>
                     <Text style={styles.title}>:</Text>
                     <View style={[stylesss.container]}>
                         <TextInput
@@ -306,13 +451,77 @@ function RewardScreen(props) {
                         }}>
                         Revendică</Text>
                 </TouchableOpacity>
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 20 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: Dimensions.get('window').width, marginTop: 10 }}>
                     <View style={{ width: Dimensions.get('window').width * 8 / 15, height: 3, backgroundColor: 'rgb(220,220,220)', bottom: 0, marginTop: 'auto' }} />
                     <Text style={{ width: Dimensions.get('window').width * 7 / 15, borderBottomColor: "black", borderBottomWidth: 3, textAlign: 'center', fontFamily: "Quicksand", fontSize: 15, color: "black", paddingBottom: 5 }}>Statistici personale</Text>
                 </View>
                 <Text style={styles.loremIpsum1}>
-                    To be implemented.
+                    Selectează asociația (1) și intervalul de timp:
                 </Text>
+
+                <View style={styles.cupertinoButtonInfoRow}>
+                    <TouchableOpacity
+                        style={[stylesDate.container, props.style]}
+                        onPress={showDatepicker}>
+                        <Text style={{ color: "#fff", fontSize: 17, fontFamily: 'Quicksand' }}>
+                            început</Text>
+                    </TouchableOpacity>
+                    <View style={stylesDate.space} />
+                    <TouchableOpacity
+                        style={[stylesDate.container, props.style]}
+                        onPress={showDatepicker2}>
+                        <Text style={{
+                            color: "#fff",
+                            fontSize: 17,
+                            fontFamily: 'Quicksand'
+                        }}>
+                            sfârșit</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <TouchableOpacity
+                    style={[stylesDate.container, { marginTop: 13 }]}
+                    onPress={() => {
+                        if (date === date2 || selectedId === null)
+                            Alert.alert("Datele trebuie să fie diferite și asociația selectată!")
+                        else {
+                            getStats(selectedId); 
+                        }
+                    }}>
+                    <Text style={{
+                        color: "#fff",
+                        fontSize: 20,
+                        fontFamily: 'Quicksand'
+                    }}>
+                        afișează statistici</Text>
+                </TouchableOpacity>
+
+                {show && ( // showDatepicker
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode={mode}
+                        is24Hour={true}
+                        display="default"
+                        onChange={onChange}
+                    />
+                )}
+
+
+                {show2 && ( // showDatepicker
+                    <DateTimePicker
+                        testID="dateTimePicker2"
+                        value={date2}
+                        mode={mode2}
+                        is24Hour={true}
+                        display="default"
+                        onChange={onChange2}
+                    />
+                )}
+                <View style={{ marginTop: 10, height: 140, width: Dimensions.get('window').width * 12 / 15, borderWidth: 3, borderRadius: 4, borderColor: "rgba(0,149,218,1)" }}>
+                    <FlatList data={volunteers} renderItem={renderItem2} keyExtractor={(item) => item.id} />
+                </View>
+
                 <View style={styles.footerContainer}>
                     <MaterialBasicFooter1
                         style={styles.materialBasicFooter1}
@@ -338,7 +547,8 @@ const stylesList = StyleSheet.create({
         borderRadius: 10,
         justifyContent: "center",
         alignItems: "center",
-        width: Dimensions.get('window').width * 7.5 / 10
+        width: Dimensions.get('window').width * 7.5 / 10,
+        height: 25
     },
     title: {
         fontSize: 15,
@@ -347,9 +557,39 @@ const stylesList = StyleSheet.create({
         alignItems: "center",
     },
     text: {
-        fontSize: 10,
+        fontSize: 11,
         fontFamily: 'Quicksand'
     }
+});
+
+
+const stylesDate = StyleSheet.create({
+    container: {
+        backgroundColor: "rgba(0,149,218,1)",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "row",
+        borderRadius: 5,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1
+        },
+        shadowOpacity: 0.35,
+        shadowRadius: 5,
+        elevation: 2,
+        minWidth: 88,
+        paddingLeft: 16,
+        paddingRight: 16
+    },
+    space: {
+        width: 20
+    },
+    deconnect: {
+        color: "#fff",
+        fontSize: 22,
+        fontFamily: 'Quicksand'
+    },
 });
 
 const home = StyleSheet.create({
@@ -398,12 +638,16 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center"
     },
+    cupertinoButtonInfoRow: {
+        height: 30,
+        flexDirection: "row",
+    },
     titleStack: {
         marginTop: "2%",
         flexDirection: "row",
     },
     titleStackk: {
-        marginTop: "3%",
+        marginTop: 5,
         flexDirection: "row",
     },
     title: {
@@ -461,7 +705,7 @@ const styles = StyleSheet.create({
         color: "rgba(96,93,93,1)",
         textAlign: "center",
         fontSize: 13,
-        marginTop: 10
+        marginTop: 5
     }
 });
 
@@ -473,7 +717,7 @@ const styless = StyleSheet.create({
         flexDirection: "row",
         borderRadius: 5,
         shadowColor: "#000",
-        marginTop: "5%",
+        marginTop: 12,
         shadowOffset: {
             width: 0,
             height: 1

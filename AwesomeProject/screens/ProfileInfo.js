@@ -4,20 +4,20 @@ import { StyleSheet, RefreshControl, ScrollView, View, Image, Dimensions, Toucha
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { Component, useContext, useState, useEffect, useRef } from "react";
 
-function TasksInfo(props) {
+function ProfileInfo(props) {
 
     const navigationn = useNavigation();
 
     const Item = () => (
         <View>
             <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
-                1. SECȚIUNEA "ANUNȚURI ANTERIOARE" afișează toate anunțurile pe care asociația ta le-a făcut, doar că trebuie selectată întăi, pentru a afișa anunțurile ei. Odată selectată, culoarea câmpului ei se va schimba.
+                1. SECȚIUNEA "PROFIL PERSONAL" permite alegerea unei imagini de profil din galeria telefonului și oferirea de informații personale, necesare asociațiilor în alte secțiuni ale aplicației. Toate câmpurile sunt obligatorii și se recomandă folosirea diacriticelor.
             </Text>
             <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
-                2. Chenarele albastre delimitează o porțiune de ecran în care se poate derula, în caz că asociațiile / anunțurile sunt mai multe decât sunt afișate inițial. Chenarele vor rămâne goale dacă nu există asociații din care faci parte sau anunțuri ale asociației selectate.
+                2. După apăsarea butonului "Salvează date", așteptați până la semnalul că toate informațiile au fost salvate în baza de date, iar restul secțiunilor din aplicație se vor debloca. Dacă vrei să editezi aceste informații, poți în același moment după, iar la o revenire ulterioară va trebui să reintroduci toate câmpurile din nou.
             </Text>
             <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
-                3. SECȚIUNEA "GENEREAZĂ ADEVERINȚĂ" permite voluntarului să își genereze o adeverință de voluntariat, în format PDF, care reunește toate recompensele primite prin cod în perioada selectată, sub îndrumarea asociației selectate. Acest PDF va putea fi distribuit prin email sau pe Drive, urmând ca reprezentantul legal al asociației respective să înregistreze, să semneze și să ștampileze această adeverință. Datele trebuie să fie neapărat diferite, fiind o modalitate prin care se asigură că cele 2 date diferite sunt setate manual de voluntar înainte de interogare.
+                3. SECȚIUNEA "ASOCIAȚII DISPONIBILE" permite voluntarului să aplice în orice asociație disponibilă pe platformă, urmând ca asociația să îi aprobe sau nu cererea.
             </Text>
         </View>
     );
@@ -76,4 +76,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default TasksInfo;
+export default ProfileInfo;

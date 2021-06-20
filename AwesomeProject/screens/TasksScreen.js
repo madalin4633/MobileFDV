@@ -10,6 +10,9 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Print from 'expo-print';
+import * as MediaLibrary from "expo-media-library";
+import * as Sharing from "expo-sharing";
 
 function compare(a, b) {
   if (a.at_date > b.at_date) {
@@ -181,7 +184,7 @@ function TasksScreen(props) {
     return (
       <Itemm
         item={item}
-        onPress={() => { setSelectedId(item.id); getAnnounces(selectedId); }}
+        onPress={() => { getAnnounces(item.id); setSelectedId(item.id);  }}
         backgroundColor={{ backgroundColor }}
         textColor={{ color }}
       />
@@ -211,6 +214,126 @@ function TasksScreen(props) {
     );
   };
 
+
+  const getPDFdata = async () => {
+    var database2 = firebase.database();
+    let PDFdata = {};
+    //informații personale
+    database2.ref('/volunteers/' + user.uid).on('value', function (snapshot) {
+      PDFdata['volname'] = snapshot.val().name;
+      PDFdata['cnp'] = snapshot.val().identifier;
+    });
+
+    //informații ale asociației
+    database2.ref('/ngos/' + selectedId).on('value', function (snapshot) {
+      PDFdata['ngoname'] = snapshot.val().name;
+      PDFdata['ngoid'] = snapshot.val().identifier;
+      PDFdata['legal'] = snapshot.val().legal;
+    });
+    //let enter_date = new Date(snapshot.val().created_at);
+
+    //listam recompensele primite prin cod din perioada selectata
+    var start = new Date(date).getTime();
+    var end = new Date(date2).getTime();
+    PDFdata['rewards'] = [];
+    let hours = 0;
+    database2.ref('/rewards/').on('value', function (snapshot) {
+      snapshot.forEach(function (childSnapshot) {
+        var redeems = childSnapshot.child("redeemed_by");
+        var when = new Date(childSnapshot.val().created_at).getTime();
+        redeems.forEach(function (grandChild) {
+          var grandData = grandChild.val();
+          if (grandData.user === user.uid && start <= when && when < end) {
+            let object = {};
+            object['title'] = childSnapshot.val().title;
+            object['description'] = childSnapshot.val().description;
+            hours += parseInt(childSnapshot.val().hours);
+            PDFdata['rewards'].push(object);
+          }
+        });
+      });
+    });
+    PDFdata['hours'] = hours;
+
+    let htmlContent = `<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Pdf Content</title>
+      <style>
+          body {
+              font-size: 16px;
+              color: black;
+          }
+          h2 {
+              text-align: center;
+              margin-top: 50px;
+          }
+          #reg {
+              text-align: center;
+          }
+          @page { 
+            margin: 20px; 
+          }
+          section {
+            break-inside: avoid;
+          }
+          #text{
+              margin-top: 55px;
+          }
+          #legal{
+              margin-top: 70px;
+              margin-left: 18px;
+          }
+      </style>
+  </head>
+  <body>
+      <h2>Adeverință de voluntariat</h2>
+      <div id="reg">Nr. înregistrare / data: ................................</div>
+      <div id="text">
+          <b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Prin prezenta se adeverește că <u>`+ PDFdata['volname'] + `</u>, identificat(ă) prin CNP: <u>` + PDFdata['cnp'] + `</u>, a realizat în colaborare cu <u>` + PDFdata['ngoname'] + `</u>, înscris(ă) ca persoană fără scop patrimonial la poziția <u>` + PDFdata['ngoid'] + `</u>, următoarele activități de voluntariat, însumând un total de <u>`+ PDFdata['hours'] + `</u> ore de lucru: </b>
+      </div>
+      <ul>`;
+
+    function myFunction(value, index, array) {
+      htmlContent += '<li> titlu: ' + value.title + " | descriere: " + value.description + '.</li>';
+    }
+
+    PDFdata['rewards'].forEach(myFunction);
+    //           <li>Coffee</li>
+    //           <li>Tea</li>
+    //           <li>Milk</li>
+    //       </ul>
+    htmlContent += 
+          `<div id="legal"><b>
+              Reprezentant legal,</b><br><u>` + PDFdata['legal'] + `</u>
+          </div>
+      </body>
+      </html>
+    `;
+
+    createAndSavePDF(htmlContent);
+    //console.log(PDFdata);
+    //setLevel(level);
+  }
+
+  const createAndSavePDF = async (html) => {
+    try {
+      const { uri } = await Print.printToFileAsync({ html });
+      await Sharing.shareAsync(uri);
+      // if (Platform.OS === "ios") {
+
+      // } else {
+      //   const permission = await MediaLibrary.requestPermissionsAsync();
+      //   if (permission.granted) {
+      //     const asset = await MediaLibrary.createAssetAsync(uri);
+      //   }
+      // }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   if (edit === 1) {
     if (type === 1)
       return (
@@ -393,7 +516,7 @@ function TasksScreen(props) {
         </View>
 
         <Text style={styles.loremIpsum1}>
-          Atașează toate recompensele din această perioadă:
+          Asociația (1) și perioada trebuie setate:
         </Text>
 
         <View style={styles.cupertinoButtonInfoRow}>
@@ -412,18 +535,26 @@ function TasksScreen(props) {
               fontSize: 17,
               fontFamily: 'Quicksand'
             }}>
-              final</Text>
+              sfârșit</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
-          style={[stylesDate.container, { marginTop: 20 }]}>
+          style={[stylesDate.container, { marginTop: 20 }]}
+          onPress={() => {
+            if (date === date2 || selectedId === null)
+              Alert.alert("Datele trebuie să fie diferite și asociația selectată!")
+            else {
+              getPDFdata();
+              //createAndSavePDF(htmlContent); 
+            }
+          }}>
           <Text style={{
             color: "#fff",
             fontSize: 20,
             fontFamily: 'Quicksand'
           }}>
-            Salvează PDF</Text>
+            Distribuie PDF</Text>
         </TouchableOpacity>
 
         {show && ( // showDatepicker
