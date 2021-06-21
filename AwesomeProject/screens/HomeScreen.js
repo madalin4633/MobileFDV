@@ -155,7 +155,7 @@ function HomeScreen(props) {
   }
   useEffect(() => {
     isMounted.current = true;
-    if (type === 0)
+    if (type === 0 && edit === 1)
       getXP();
     getVolunteersPending();
 

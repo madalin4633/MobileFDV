@@ -22,6 +22,21 @@ function TasksInfo(props) {
         </View>
     );
 
+    
+    const Itemm = () => (
+        <View>
+            <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
+                1. SECȚIUNEA "creează un anunț" permite asociației să notifice voluntarii cu privire la o nouă activitate din viitorul apropiat - se recomandă titlul scurt, dintr-un singur cuvânt (exemple: ședință, ecologizare, conferință, amenajare, etc.), iar descrierea cât mai detaliată.
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
+                2. Toate câmpurile sunt obligatorii, existând mesaje specifice pentru validarea datelor.
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
+                3. SECȚIUNEA "ANUNȚURI ANTERIOARE" afișează toate anunțurile pe care asociația ta le-a făcut, în ordine cronologică (cel mai recent postat va fi mai sus).
+            </Text>
+        </View>
+    );
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
             <ScrollView contentContainerStyle={{ alignItems: 'center', backgroundColor: "white" }}>
@@ -36,7 +51,7 @@ function TasksInfo(props) {
                 {props.route.params.type === 0 ? 
                 <Item></Item>
                 :
-                    <Text> sunt Asociatie si asta tre sa fac</Text>}
+                    <Itemm></Itemm>}
             </ScrollView>
         </SafeAreaView>
     );

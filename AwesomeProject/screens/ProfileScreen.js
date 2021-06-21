@@ -203,7 +203,7 @@ function ProfileScreen(props) {
     return (
       <View style={styles.container}>
         <EntypoIcon name="info-with-circle" style={styles.icon4}
-          onPress={() => navigation.navigate('ProfileInfo', { type: type })} />
+          onPress={() => console.log("cveva")} ></EntypoIcon>
         <KeyboardAvoidingView style={{ margin: 15 }} behavior="padding">
           <View style={{ alignItems: 'center', marginBottom: "8%" }}>
             <View style={{ height: 100, width: 100, borderRadius: 15, marginTop: "2%", justifyContent: 'center', alignItems: 'center' }}>
@@ -680,7 +680,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginRight: "10%",
     marginTop: 50,
-    alignSelf: 'flex-end',
+    alignSelf: 'flex-end'
   },
   image1: {
     width: 100,

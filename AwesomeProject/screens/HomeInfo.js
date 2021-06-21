@@ -22,6 +22,17 @@ function HomeInfo(props) {
         </View>
     );
 
+    const Itemm = () => (
+        <View>
+            <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
+                1. SECȚIUNEA "VOLUNTARII TĂI" permite asociației, printr-un meniu de tip tab, să afișeze toți voluntarii care fac sau nu parte din asociație. În plus, cei în așteptare, care abia au aplicat, pot fi acceptați sau refuzați, altfel nu vor vedea anunțurile și nu pot primi recompense.
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
+                3. SECȚIUNEA "ȘTIRI DESPRE VOLUNTAR" încarcă, prin intermediul unui NewsAPI, titlul știrilor relevante din România, având "voluntar" drept cuvânt-cheie în articole. Apasă pe titlul articolului pentru a-l deschide separat și a rămâne tot timpul informat cu noutăți din acest segment de activitate, în continuă creștere ca popularitate.
+            </Text>
+        </View>
+    );
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
             <ScrollView contentContainerStyle={{ alignItems: 'center', backgroundColor: "white" }}>
@@ -36,7 +47,7 @@ function HomeInfo(props) {
                 {props.route.params.type === 0 ? 
                 <Item></Item>
                 :
-                    <Text> sunt Asociatie si asta tre sa fac</Text>}
+                <Itemm></Itemm>}
             </ScrollView>
         </SafeAreaView>
     );

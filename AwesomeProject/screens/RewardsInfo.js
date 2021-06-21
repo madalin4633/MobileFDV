@@ -22,6 +22,20 @@ function RewardsInfo(props) {
         </View>
     );
 
+    const Itemm = () => (
+        <View>
+            <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
+                1. SECȚIUNEA "ACORDĂ RECOMPENSĂ" permite asociației să genereze un cod unic prin care poate acorda orele lucrate unui număr predefinit de voluntari, doar în ziua în care a fost creat respectivul cod. 
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
+                2. Se recomandă ca la titlu să se folosească un cuvânt (exemple: ședință, ecologizare, conferință, amenajare, etc.), iar la descriere să se includă cât mai multe detalii.
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: "justify", width: Dimensions.get('window').width * 8.5 / 10, fontFamily: "Quicksand", fontSize: 13, color: "grey" }}>
+                3. SECȚIUNEA "STATISTICILE MEMBRILOR" permite asociației să vadă, ordonat, cât de activi sunt voluntarii ei, pentru a vedea cine este activ într-o anumită perioadă de timp (de exemplu, în ultimul an, pentru a putea acorda titlul de "Voluntarul Anului"). Acest interval de timp se definește prin butoane specifice, început și sfârșit, și trebuie să fie 2 date distincte între ele.
+            </Text>
+        </View>
+    );
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
             <ScrollView contentContainerStyle={{ alignItems: 'center', backgroundColor: "white" }}>
@@ -36,7 +50,7 @@ function RewardsInfo(props) {
                 {props.route.params.type === 0 ? 
                 <Item></Item>
                 :
-                    <Text> sunt Asociatie si asta tre sa fac</Text>}
+                    <Itemm></Itemm>}
             </ScrollView>
         </SafeAreaView>
     );
