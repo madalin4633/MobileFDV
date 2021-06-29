@@ -27,6 +27,7 @@ export function actuatedNormalize(size) {
   }
 }
 
+//checkbox-ul de accept GDPR
 function MyCheckbox({
   checked,
   onChange ,
@@ -52,11 +53,13 @@ function RegisterScreen({ route, navigation }) {
   var str1 = "Înregistrare #";
   var res = str1.concat(typeS);
 
+  //hooks
   const [showPassword, setShowPassword] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [checked, onChange] = useState(false);
 
+  //importarea functiilor
   const { loginG, loginF } = useContext(AuthContext);
 
   return (

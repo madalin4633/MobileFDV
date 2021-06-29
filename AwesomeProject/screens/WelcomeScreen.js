@@ -23,6 +23,7 @@ export function actuatedNormalize(size) {
 }
 
 function WelcomeScreen(props) {
+//generarea in mod randomizat a citatului care va fi afisat
 
   var text = '{ "quotes" : [' +
 '{ "text": "Voluntarii nu sunt plătiți,\\n nu pentru că nu au nicio valoare,\\n ci pentru că sunt de neprețuit. \\n (Sherry Anderson)" },' +

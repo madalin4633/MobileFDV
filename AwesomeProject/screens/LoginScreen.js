@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { AuthContext } from '../AuthProvider';
 
+//functii de scalare a dimensiunii unor componente in functie de marimea ecranului
 
 const {
   width: SCREEN_WIDTH,
@@ -34,6 +35,7 @@ function LoginScreen({ route, navigation }) {
   var str1 = "Autentificare #";
   var res = str1.concat(typeS);
 
+  //hooks
   const [showPassword, setShowPassword] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

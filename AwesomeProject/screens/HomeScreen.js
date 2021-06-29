@@ -10,10 +10,12 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import styled from 'styled-components/native';
 import CircularProgress from '../components/CircularProgress';
 
+//functie prin care putem face aplicatia sa astepte cateva secunde
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
 }
 
+//un stil prin TypeScript necesar in paginas
 const Container = styled.View`
   flex: 1;
   align-items: center;
@@ -23,7 +25,7 @@ const Container = styled.View`
 
 function HomeScreen(props) {
   const navigation = useNavigation();
-
+  //definirea hook-urilor necesare in aplicatie pentru stocarea informatiilor in diverse variabile
   const { user, setUser } = useContext(AuthContext);
   const [type, setType] = useState('');
   const [edit, setEdit] = useState('');
@@ -42,6 +44,7 @@ function HomeScreen(props) {
     Quicksand: require('../assets/fonts/quicksand-700.ttf'),
   });
 
+  //obtinerea articolelor pentru partea de RSS feed
   const getArticles = async () => {
     fetch('https://newsapi.org/v2/everything?q=voluntar&apiKey=e2e652c4424d404c9b139351e49602e4') //4dbc17e007ab436fb66416009dfb59a8
       .then(response => response.json())
@@ -51,6 +54,7 @@ function HomeScreen(props) {
   if (articles === '')
     getArticles();
 
+  //obtinerea datelor voluntarilor care au aplicat in asociatia curenta
   const getVolunteersPending = async () => {
     var database2 = firebase.database();
     database2.ref('/ngos/' + user.uid.toString() + "/pending/").on('value', function (snapshot) {
@@ -66,6 +70,7 @@ function HomeScreen(props) {
     });
   }
 
+  //obtinerea informatiilor pentru calculul punctelor de experienta
   const getXP = async () => {
     var database2 = firebase.database();
     let level = {};
@@ -104,8 +109,10 @@ function HomeScreen(props) {
       level['hours'] = hours;
     });
 
+    //calculul experientei cu aceasta formula
     let player_xp = (ngosNo + rewards + hours) * 16 + level['days'] * 0.5;
-
+    
+    //calculul nivelului avut in acest moment
     for (let step = 1; step < 12; step++) {
       if (player_xp < 4 ** step) {
         level['level'] = step;
@@ -116,6 +123,7 @@ function HomeScreen(props) {
     setLevel(level);
   }
 
+  //lista voluntarilor deja acceptati
   const getVolunteersAccepted = async () => {
     var database2 = firebase.database();
     database2.ref('/ngos/' + user.uid.toString() + "/accepted/").on('value', function (snapshot) {
@@ -131,6 +139,7 @@ function HomeScreen(props) {
     });
   }
 
+  //lista voluntarilor deja refuzati
   const getVolunteersRefused = async () => {
     var database2 = firebase.database();
     database2.ref('/ngos/' + user.uid.toString() + "/refused/").on('value', function (snapshot) {
@@ -167,6 +176,8 @@ function HomeScreen(props) {
   }, []);
 
 
+//afisarea articolelor
+
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
     <View style={stylesList.container}>
       <TouchableOpacity style={[stylesList.item, backgroundColor]} onPress={onPress}>
@@ -192,7 +203,7 @@ function HomeScreen(props) {
   };
 
 
-
+//afisarea voluntarilor care asteapta raspuns, alaturi de butoanele care ii accepta sau refuza in organizatie
   const Itemm = ({ item, onPress, backgroundColor, textColor }) => (
     <View style={stylesItemm.container}>
       <View onPress={onPress} style={[stylesItemm.item, backgroundColor]}>
@@ -253,7 +264,7 @@ function HomeScreen(props) {
     </View>
   );
 
-
+  //afisarea voluntarilor acceptati / refuzati
   const Itemmm = ({ item, onPress, backgroundColor, textColor }) => (
     <View style={stylesItemm.container}>
       <View onPress={onPress} style={[stylesItemm.item, backgroundColor]}>
@@ -287,6 +298,7 @@ function HomeScreen(props) {
     );
   };
 
+  //pull-to-refresh
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     getXP();

@@ -26,7 +26,7 @@ function compare(a, b) {
 
 function TasksScreen(props) {
   const navigation = useNavigation();
-
+//hooks
   var dateVal = new Date();
   const { user, setUser } = useContext(AuthContext);
   const [type, setType] = useState('');
@@ -45,6 +45,7 @@ function TasksScreen(props) {
   const [ngos, setNgos] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
 
+  //ong-urile in care voluntarul este implicat
   const getNGOS = async () => {
     var database2 = firebase.database();
     database2.ref('/ngos/').on('value', function (snapshot) {
@@ -63,6 +64,7 @@ function TasksScreen(props) {
     });
   }
 
+  //anunturile dintr-o anumita asociatie
   const getAnnounces = async (ngoUID) => {
     var database2 = firebase.database();
     database2.ref('/announcements/').orderByChild('at_date').on('value', function (snapshot) {
@@ -111,7 +113,7 @@ function TasksScreen(props) {
     }
   }, []);
 
-
+//data de inceput si de final pentru interval de timp in afisarea anunturilor sau pentru generarea adeverintei PDF
   const onChange = (event, selectedDate) => {
     setShow(Platform.OS === 'ios');
     if (event.type == "set") {          //ok button
@@ -214,7 +216,7 @@ function TasksScreen(props) {
     );
   };
 
-
+//generarea PDF-ului pentru informatiile dintr-o anumita perioada de timp
   const getPDFdata = async () => {
     var database2 = firebase.database();
     let PDFdata = {};
@@ -318,6 +320,7 @@ function TasksScreen(props) {
     //setLevel(level);
   }
 
+  //apel functie de a distribui acest fisier abia generat
   const createAndSavePDF = async (html) => {
     try {
       const { uri } = await Print.printToFileAsync({ html });

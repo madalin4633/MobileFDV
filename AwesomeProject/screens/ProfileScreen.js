@@ -14,7 +14,7 @@ import { getActiveChildNavigationOptions } from "react-navigation";
 
 function ProfileScreen(props) {
 
-
+//hooks - definirea variabilelor si functiilor prin care informatia poate fi rescrisa in acea variabila
   const navigation = useNavigation();
   const { logout } = useContext(AuthContext);
   const user = firebase.auth().currentUser;
@@ -36,6 +36,7 @@ function ProfileScreen(props) {
   const [edit, setEdit] = useState('');
   const isMounted = useRef(null);
 
+  //obtinerea informatiilor pentru profil, daca exista
   const getProfileInfo = async () => {
     var database2 = firebase.database();
     let urlString = type === 0 ? "/volunteers/" : "/ngos/";
@@ -53,6 +54,7 @@ function ProfileScreen(props) {
     });
   };
 
+  //obtinerea tuturor asociatiilor disponibile pe platforma, dar din care sa nu facem inca parte
   const getNGOs = async () => {
     var database2 = firebase.database();
     database2.ref('/ngos/').on('value', function (snapshot) {
@@ -73,6 +75,7 @@ function ProfileScreen(props) {
     });
   }
 
+  //obtinerea permisiunilor de a urca o imagine
   (async () => {
     if (Platform.OS !== 'web') {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -102,6 +105,8 @@ function ProfileScreen(props) {
     }
   }, []);
 
+
+  //afisare DatePicker si stocarea datei selectate
   const onChange = (event, selectedDate) => {
     setShow(Platform.OS === 'ios');
     if (event.type == "set") {          //ok button
@@ -131,6 +136,7 @@ function ProfileScreen(props) {
     });
   }
 
+  //imagePick prin care se alege imaginea din telefon si se pune la profil
   const PickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -145,6 +151,7 @@ function ProfileScreen(props) {
     }
   }
 
+  //upload imagine in storage prin trecerea lui la un blob
   const uploadImage = async (uri, imageName) => {
     const response = await fetch(uri);
     const blob = await response.blob();
@@ -153,6 +160,8 @@ function ProfileScreen(props) {
     return ref.put(blob);
   }
 
+
+  //afisarea asociatiilor
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
     <View style={stylesList.container}>
       <TouchableOpacity onPress={onPress} style={[stylesList.item, backgroundColor]}>

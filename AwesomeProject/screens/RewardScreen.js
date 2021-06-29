@@ -21,7 +21,7 @@ function compare(a, b) {
 
 function RewardScreen(props) {
     const navigation = useNavigation();
-
+//hooks
     const { user, setUser } = useContext(AuthContext);
     const [title, setTitle] = useState('');
     const [descr, setDescr] = useState('');
@@ -42,6 +42,7 @@ function RewardScreen(props) {
     const [show2, setShow2] = useState(false);
     const [date2, setDate2] = useState(dateVal);
 
+    //lista asociatiilor disponibile pentru acel voluntar si afisarea lor
     const getNGOS = async () => {
         var database2 = firebase.database();
         database2.ref('/ngos/').on('value', function (snapshot) {
@@ -101,7 +102,7 @@ function RewardScreen(props) {
         );
     };
 
-
+//afisare statistici
     const Itemm = ({ item, onPress, backgroundColor, textColor }) => (
         <View style={stylesList.container}>
             <TouchableOpacity onPress={onPress} style={[stylesList.item, backgroundColor]}>
@@ -126,7 +127,7 @@ function RewardScreen(props) {
 
 
 
-
+//selectarea datei de inceput si de final
     const onChange = (event, selectedDate) => {
         setShow(Platform.OS === 'ios');
         if (event.type == "set") {          //ok button
@@ -164,7 +165,7 @@ function RewardScreen(props) {
         showMode2('date');
     };
 
-
+//statisticile pentru toti voluntarii dintr-o aplicatie
     const getStats = async (ngoID) => {
         var database2 = firebase.database();
         let NGOstats = {};
@@ -182,7 +183,7 @@ function RewardScreen(props) {
                 NGOstats[id] = object[id];
             });
         });
-        // console.log(NGOstats);
+        
         //listam statisticile tuturor voluntarilor din respectiva asociatie selectata
         var start = new Date(date).getTime();
         var end = new Date(date2).getTime();
@@ -192,15 +193,8 @@ function RewardScreen(props) {
                 var redeems = childSnapshot.child("redeemed_by");
                 var when = new Date(childSnapshot.val().created_at).getTime();
                 redeems.forEach(function (grandChild) {
-                    // console.log(childSnapshot.val().created_by);
-                    // console.log(ngoID)
-                    // console.log('atceva');
                     if (start <= when && when < end && childSnapshot.val().created_by === ngoID) {
                         let id = grandChild.val().user;
-                        // console.log(' a intrat?')
-                        // console.log(id);
-                        // console.log(id);
-                        // console.log(NGOstats[id]);
                         if (NGOstats[id] != undefined) {
                             NGOstats[id]['tasks'] = NGOstats[id]['tasks'] + 1;
                             NGOstats[id]['hours'] = NGOstats[id]['hours'] + childSnapshot.val().hours;
